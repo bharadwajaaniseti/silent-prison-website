@@ -12,10 +12,12 @@
     "dev:full": "concurrently \"npm run server\" \"npm run dev\""
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.54.0",
     "@types/react-router-dom": "^5.3.3",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
-    "express": "^4.18.2",
+    "dotenv": "^17.2.1",
+    "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.344.0",
     "pdfjs-dist": "^3.11.174",
