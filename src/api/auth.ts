@@ -38,7 +38,7 @@ export interface UpdateProfileRequest {
 // Login user
 export async function loginUser(credentials: LoginRequest): Promise<AuthResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/login`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE_URL}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ export async function loginUser(credentials: LoginRequest): Promise<AuthResponse
 // Register new user
 export async function registerUser(userData: RegisterRequest): Promise<AuthResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/register`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE_URL}/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ export async function verifyToken(): Promise<User | null> {
       return null;
     }
 
-    const response = await fetch(`${API_BASE_URL}/verify`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE_URL}/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ export async function getUserProfile(): Promise<User> {
       throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`${API_BASE_URL}/profile`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE_URL}/profile`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -170,7 +170,7 @@ export async function updateUserProfile(updates: UpdateProfileRequest): Promise<
       throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`${API_BASE_URL}/profile`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE_URL}/profile`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

@@ -7,7 +7,7 @@ const API_BASE = 'http://localhost:3001/api';
 // Fetch site statistics from backend
 export const fetchSiteStats = async (): Promise<SiteStats> => {
   try {
-    const response = await fetch(`${API_BASE}/stats`);
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE}/stats`);
     if (response.ok) {
       const data = await response.json();
       return data.stats;
@@ -87,7 +87,7 @@ const getUsersFromStorage = (): any[] => {
 // Fetch recent activity data
 export const fetchRecentActivity = async () => {
   try {
-    const response = await fetch(`${API_BASE}/activity/recent`);
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE}/activity/recent`);
     if (response.ok) {
       const data = await response.json();
       return data.activities || [];
@@ -204,7 +204,7 @@ const generateRecentActivityFromLocalData = async () => {
 // Update chapter view count
 export const updateChapterViews = async (chapterId: string): Promise<void> => {
   try {
-    const response = await fetch(`${API_BASE}/chapters/${chapterId}/view`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE}/chapters/${chapterId}/view`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     });

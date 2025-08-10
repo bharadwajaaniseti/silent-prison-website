@@ -6,7 +6,7 @@ const API_BASE = 'http://localhost:3001/api';
 // Save all chapters to backend
 export const apiSaveChapters = async (chapters: Chapter[]): Promise<void> => {
   try {
-    const response = await fetch(`${API_BASE}/chapters`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE}/chapters`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chapters })
@@ -28,7 +28,7 @@ export const apiSaveChapters = async (chapters: Chapter[]): Promise<void> => {
 // Fetch chapters from backend
 export const apiFetchChapters = async (): Promise<Chapter[]> => {
   try {
-    const response = await fetch(`${API_BASE}/chapters`);
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE}/chapters`);
     if (response.ok) {
       const data = await response.json();
       return data.chapters || [];
@@ -51,7 +51,7 @@ export const apiFetchChapters = async (): Promise<Chapter[]> => {
 // Add single chapter to backend
 export const apiAddChapter = async (chapter: Omit<Chapter, 'id' | 'createdAt' | 'updatedAt'>): Promise<Chapter> => {
   try {
-    const response = await fetch(`${API_BASE}/chapters`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE}/chapters`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chapter })
@@ -72,7 +72,7 @@ export const apiAddChapter = async (chapter: Omit<Chapter, 'id' | 'createdAt' | 
 // Update chapter in backend
 export const apiUpdateChapter = async (id: string, updates: Partial<Chapter>): Promise<Chapter> => {
   try {
-    const response = await fetch(`${API_BASE}/chapters/${id}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE}/chapters/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates)
@@ -93,7 +93,7 @@ export const apiUpdateChapter = async (id: string, updates: Partial<Chapter>): P
 // Delete chapter from backend
 export const apiDeleteChapter = async (id: string): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_BASE}/chapters/${id}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE}/chapters/${id}`, {
       method: 'DELETE'
     });
     
