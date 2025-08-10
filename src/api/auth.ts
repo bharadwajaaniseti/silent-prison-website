@@ -1,14 +1,7 @@
-const API_BASE_URL = 'http://localhost:3001/api/users';
+// API endpoints for authentication
+import { User } from '../utils/chaptersStorage'; // adjust import if needed
 
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  role: string;
-  createdAt: string;
-  lastLogin: string | null;
-  isActive: boolean;
-}
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api/users`;
 
 export interface LoginRequest {
   username: string;
@@ -38,11 +31,9 @@ export interface UpdateProfileRequest {
 // Login user
 export async function loginUser(credentials: LoginRequest): Promise<AuthResponse> {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE_URL}/login`, {
+    const response = await fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials),
     });
 
@@ -52,11 +43,10 @@ export async function loginUser(credentials: LoginRequest): Promise<AuthResponse
     }
 
     const data = await response.json();
-    
-    // Store token in localStorage
+
     localStorage.setItem('authToken', data.token);
     localStorage.setItem('currentUser', JSON.stringify(data.user));
-    
+
     return data;
   } catch (error) {
     console.error('Login error:', error);
@@ -67,11 +57,9 @@ export async function loginUser(credentials: LoginRequest): Promise<AuthResponse
 // Register new user
 export async function registerUser(userData: RegisterRequest): Promise<AuthResponse> {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE_URL}/register`, {
+    const response = await fetch(`${API_BASE_URL}/register`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),
     });
 
@@ -81,11 +69,10 @@ export async function registerUser(userData: RegisterRequest): Promise<AuthRespo
     }
 
     const data = await response.json();
-    
-    // Store token in localStorage
+
     localStorage.setItem('authToken', data.token);
     localStorage.setItem('currentUser', JSON.stringify(data.user));
-    
+
     return data;
   } catch (error) {
     console.error('Registration error:', error);
@@ -97,11 +84,9 @@ export async function registerUser(userData: RegisterRequest): Promise<AuthRespo
 export async function verifyToken(): Promise<User | null> {
   try {
     const token = localStorage.getItem('authToken');
-    if (!token) {
-      return null;
-    }
+    if (!token) return null;
 
-    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE_URL}/verify`, {
+    const response = await fetch(`${API_BASE_URL}/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -110,17 +95,14 @@ export async function verifyToken(): Promise<User | null> {
     });
 
     if (!response.ok) {
-      // Token is invalid, clear it
       localStorage.removeItem('authToken');
       localStorage.removeItem('currentUser');
       return null;
     }
 
     const data = await response.json();
-    
-    // Update stored user data
     localStorage.setItem('currentUser', JSON.stringify(data.user));
-    
+
     return data.user;
   } catch (error) {
     console.error('Token verification error:', error);
@@ -134,15 +116,11 @@ export async function verifyToken(): Promise<User | null> {
 export async function getUserProfile(): Promise<User> {
   try {
     const token = localStorage.getItem('authToken');
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
+    if (!token) throw new Error('No authentication token found');
 
-    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE_URL}/profile`, {
+    const response = await fetch(`${API_BASE_URL}/profile`, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: { 'Authorization': `Bearer ${token}` },
     });
 
     if (!response.ok) {
@@ -151,10 +129,8 @@ export async function getUserProfile(): Promise<User> {
     }
 
     const data = await response.json();
-    
-    // Update stored user data
     localStorage.setItem('currentUser', JSON.stringify(data.user));
-    
+
     return data.user;
   } catch (error) {
     console.error('Get profile error:', error);
@@ -166,11 +142,9 @@ export async function getUserProfile(): Promise<User> {
 export async function updateUserProfile(updates: UpdateProfileRequest): Promise<User> {
   try {
     const token = localStorage.getItem('authToken');
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
+    if (!token) throw new Error('No authentication token found');
 
-    const response = await fetch(`${import.meta.env.VITE_API_URL}`${API_BASE_URL}/profile`, {
+    const response = await fetch(`${API_BASE_URL}/profile`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -185,10 +159,8 @@ export async function updateUserProfile(updates: UpdateProfileRequest): Promise<
     }
 
     const data = await response.json();
-    
-    // Update stored user data
     localStorage.setItem('currentUser', JSON.stringify(data.user));
-    
+
     return data.user;
   } catch (error) {
     console.error('Update profile error:', error);
