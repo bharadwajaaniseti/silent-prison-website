@@ -1,0 +1,34 @@
+{
+  "users": [
+    {
+      "id": "admin-1",
+      "username": "admin",
+      "email": "admin@silentprison.com",
+      "passwordHash": "$2b$10$irhaPJJiL85HMT048it0ZeKUFMScy41Y5HnTc6iYXFA9ET4OwUYC2",
+      "role": "admin",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "lastLogin": "2025-08-10T15:05:50.261Z",
+      "isActive": true
+    },
+    {
+      "id": "user-1754805188515-xrulgzgp3",
+      "username": "robin",
+      "email": "robin@gmail.com",
+      "passwordHash": "$2b$10$4st8sahUDbR2HCKr9DJCVObLV8NWIKO2OZD//P.bqHMOrAETTdaT6",
+      "role": "member",
+      "createdAt": "2025-08-10T05:53:08.515Z",
+      "lastLogin": "2025-08-10T05:55:15.148Z",
+      "isActive": true
+    },
+    {
+      "id": "user-1754838332032-smpthw6q5",
+      "username": "r",
+      "email": "r@gmail.com",
+      "passwordHash": "$2b$10$dgYUci6ecRkZgl5n7IdFFuU5z2kCiGVZpbwVjl0k6m8Y88YM.SxAG",
+      "role": "member",
+      "createdAt": "2025-08-10T15:05:32.032Z",
+      "lastLogin": null,
+      "isActive": true
+    }
+  ]
+}
