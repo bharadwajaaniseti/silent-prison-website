@@ -8,6 +8,8 @@ interface Chapter {
   volume: string;
   content: string;
   pdfFile?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const ChaptersPage: React.FC = () => {
@@ -42,10 +44,12 @@ const ChaptersPage: React.FC = () => {
   }, []);
 
   // Filter chapters based on search query
-  const filteredChapters = chapters.filter(chapter => 
-    chapter.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    chapter.volume.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredChapters = chapters.filter(chapter => {
+    const query = searchQuery.toLowerCase();
+    const title = chapter.title?.toLowerCase() || '';
+    const volume = chapter.volume?.toLowerCase() || '';
+    return title.includes(query) || volume.includes(query);
+  });
 
   const handleChapterClick = (chapterId: string | number) => {
     try {
@@ -67,6 +71,62 @@ const ChaptersPage: React.FC = () => {
       </div>
     );
   }
+
+  const renderContent = () => {
+    if (filteredChapters.length > 0) {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredChapters.map((chapter) => (
+            <div 
+              key={chapter.id}
+              onClick={() => handleChapterClick(chapter.id)}
+              className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-blue-500/10 group hover:-translate-y-1"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Book className="h-5 w-5 text-blue-400 flex-shrink-0" />
+                    <span className="text-sm font-medium text-blue-400">
+                      Chapter {chapter.title.split(':')[0].match(/\d+/)?.[0] || ''}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors">
+                    {chapter.title.split(':')[1]?.trim() || chapter.title}
+                  </h3>
+                </div>
+                <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+              </div>
+              {chapter.pdfFile && (
+                <div className="mt-4 flex items-center text-xs text-gray-400">
+                  <span className="bg-blue-900/30 text-blue-400 px-2 py-1 rounded-full">
+                    PDF
+                  </span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (chapters.length > 0) {
+      return (
+        <div className="text-center py-12">
+          <Search className="h-12 w-12 mx-auto text-gray-500 mb-4" />
+          <h3 className="text-xl font-medium text-gray-300">No chapters found</h3>
+          <p className="text-gray-500 mt-2">Try adjusting your search query</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="text-center py-12">
+        <Book className="h-12 w-12 mx-auto text-gray-500 mb-4" />
+        <h3 className="text-xl font-medium text-gray-300">No chapters available</h3>
+        <p className="text-gray-500 mt-2">Check back later for updates</p>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6">
@@ -91,51 +151,7 @@ const ChaptersPage: React.FC = () => {
         </div>
 
         {/* Chapters List */}
-        {filteredChapters.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredChapters.map((chapter) => (
-              <div 
-                key={chapter.id}
-                onClick={() => handleChapterClick(chapter.id)}
-                className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-blue-500/10 group"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Book className="h-5 w-5 text-blue-400 flex-shrink-0" />
-                      <span className="text-sm font-medium text-blue-400">
-                        Chapter {chapter.title.split(':')[0].match(/\d+/)?.[0] || ''}
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors">
-                      {chapter.title.split(':')[1]?.trim() || chapter.title}
-                    </h3>
-                  </div>
-                  <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
-                </div>
-                {chapter.pdfFile && (
-                  <div className="mt-4 flex items-center text-xs text-gray-400">
-                    <span className="bg-blue-900/30 text-blue-400 px-2 py-1 rounded">
-                      PDF Available
-                    </span>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : chapters.length > 0 ? (
-          <div className="text-center py-12">
-            <Search className="h-12 w-12 mx-auto text-gray-500 mb-4" />
-            <h3 className="text-xl font-medium text-gray-300">No chapters found</h3>
-            <p className="text-gray-500 mt-2">Try adjusting your search query</p>
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <Book className="h-12 w-12 mx-auto text-gray-500 mb-4" />
-            <h3 className="text-xl font-medium text-gray-300">No chapters available</h3>
-            <p className="text-gray-500 mt-2">Check back later for updates</p>
-          </div>
-        )}
+        {renderContent()}
       </div>
     </div>
   );
