@@ -104,11 +104,11 @@ const ChaptersPage: React.FC = () => {
                     <div className="flex items-center space-x-2 mb-2">
                       <Book className="h-5 w-5 text-blue-400 flex-shrink-0" />
                       <span className="text-sm font-medium text-blue-400">
-                        {chapter.volume || 'Chapter ' + chapter.id}
+                        Chapter {chapter.title.split(':')[0].match(/\d+/)?.[0] || ''}
                       </span>
                     </div>
                     <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors">
-                      {chapter.title}
+                      {chapter.title.split(':')[1]?.trim() || chapter.title}
                     </h3>
                   </div>
                   <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
