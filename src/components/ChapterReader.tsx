@@ -8,13 +8,6 @@ interface ChapterReaderProps {
   isAdmin?: boolean;
 }
 
-interface PageCache {
-  [key: number]: {
-    pages: string[];
-    totalPages: number;
-  };
-}
-
 /** ---------- Pagination (text only) ---------- */
 const getPaginatedContent = (content: string, targetCharsPerPage: number) => {
   const normalized = content
@@ -28,7 +21,6 @@ const getPaginatedContent = (content: string, targetCharsPerPage: number) => {
   let currentPage = '';
   let currentPageLength = 0;
   const tolerance = 0.15;
-  const minPageLength = targetCharsPerPage * (1 - tolerance);
   const maxPageLength = targetCharsPerPage * (1 + tolerance);
 
   for (const paragraph of paragraphs) {
@@ -104,12 +96,10 @@ const getPaginatedContent = (content: string, targetCharsPerPage: number) => {
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
 
 /** ---------- Component ---------- */
-const ChapterReader: React.FC<ChapterReaderProps> = ({
-  isAdmin = false,
-}) => {
+const ChapterReader: React.FC<ChapterReaderProps> = () => {
   // State management
   const [chapters, setChapters] = useState<Chapter[]>([]);
-  const [currentChapter, setCurrentChapter] = useState<string>('1');
+  const [currentChapter, setCurrentChapter] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -117,13 +107,12 @@ const ChapterReader: React.FC<ChapterReaderProps> = ({
     return localStorage.getItem('reader:darkMode') === 'true' || true;
   });
   const [showSettings, setShowSettings] = useState<boolean>(false);
-  const [showFontSize, setShowFontSize] = useState<boolean>(false);
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [fontSize, setFontSize] = useState<number>(() => {
     return parseInt(localStorage.getItem('reader:fontSize') || '16', 10);
   });
   const [pageContent, setPageContent] = useState<string>('');
-  const [pageCache, setPageCache] = useState<PageCache>({});
+  const [pageCache, setPageCache] = useState<Record<string, { pages: string[]; totalPages: number }>>({});
 
   const currentChapterData = chapters.find(ch => ch.id === currentChapter) || chapters[0] || { id: '1', title: 'No Chapter Found', content: 'No chapters available.', isPublished: false, memberOnly: false, createdAt: '', updatedAt: '', volume: '' };
 
@@ -295,15 +284,7 @@ const ChapterReader: React.FC<ChapterReaderProps> = ({
     });
   }, []);
 
-  const toggleSettings = useCallback(() => setShowSettings(p => !p), []);
-
-  const toggleBookmark = useCallback(() => {
-    setIsBookmarked(prev => !prev);
-  }, []);
-
-  const toggleFontSize = useCallback(() => setShowFontSize(p => !p), []);
-
-  const changeFontSize = useCallback(
+  const handleFontSizeChange = useCallback(
     (size: number) => setFontSize(clamp(size, 12, 24)),
     []
   );
@@ -454,12 +435,11 @@ const ChapterReader: React.FC<ChapterReaderProps> = ({
 
   /** Initialize loading state */
   useEffect(() => {
-    // Set loading to false after initial setup
-    const timer = setTimeout(() => {
+    // Only show loading if we don't have chapters yet
+    if (chapters.length > 0) {
       setIsLoading(false);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
+    }
+  }, [chapters]);
 
 
 
@@ -704,7 +684,7 @@ return (
                   <label className="block text-sm font-semibold mb-3">Font Size</label>
                   <div className="flex items-center justify-center space-x-4">
                     <button
-                      onClick={() => setFontSize(Math.max(12, fontSize - 2))}
+                      onClick={() => handleFontSizeChange(fontSize - 2)}
                       className={`w-10 h-10 rounded-lg font-bold transition-all duration-200 ${
                         isDarkMode
                           ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg'
@@ -719,7 +699,7 @@ return (
                       {fontSize}px
                     </div>
                     <button
-                      onClick={() => setFontSize(Math.min(24, fontSize + 2))}
+                      onClick={() => handleFontSizeChange(fontSize + 2)}
                       className={`w-10 h-10 rounded-lg font-bold transition-all duration-200 ${
                         isDarkMode
                           ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg'
