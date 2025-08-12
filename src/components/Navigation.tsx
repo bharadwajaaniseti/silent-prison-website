@@ -122,9 +122,9 @@ const Navigation: React.FC<NavigationProps> = ({
       </nav>
 
       {/* Mobile Navigation */}
-      <div className="lg:hidden">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50">
         {/* Mobile Header */}
-        <header className="fixed top-0 left-0 right-0 bg-gray-800/95 backdrop-blur-sm border-b border-blue-500/30 px-4 py-3 flex items-center justify-between z-50">
+        <header className="bg-gray-800/95 backdrop-blur-sm border-b border-blue-500/30 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-red-500 rounded-lg flex items-center justify-center font-orbitron font-bold text-white text-sm">
               SP

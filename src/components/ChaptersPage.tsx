@@ -129,8 +129,8 @@ const ChaptersPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white px-6 pb-6 pt-20 lg:pt-6 lg:pl-28">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white pt-[4.5rem] lg:ml-20">
+      <div className="w-full max-w-[2000px] mx-auto px-6 lg:px-8">
         <header className="mb-8">
           <h1 className="text-4xl font-bold font-orbitron mb-2">Chapters</h1>
           <p className="text-gray-400">Browse all available chapters</p>

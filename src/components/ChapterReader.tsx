@@ -337,15 +337,15 @@ const ChapterReader: React.FC<ChapterReaderProps> = () => {
   }
 
   return (
-    <div className={`min-h-screen pt-16 lg:pt-0 ${
+    <div className={`min-h-screen pt-[4.5rem] ${
       isDarkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100' : 'bg-gradient-to-br from-gray-50 via-white to-gray-50 text-gray-900'
     }`}>
       {/* Fixed Header */}
-      <header className={`fixed top-0 left-0 lg:left-20 right-0 z-50 backdrop-blur-md border-b ${
+      <header className={`fixed top-0 left-0 lg:left-20 right-0 z-50 backdrop-blur-md border-b h-[4.5rem] ${
         isDarkMode ? 'border-gray-700/50 bg-gray-900/80' : 'border-gray-200/50 bg-white/80'
       } shadow-lg w-full lg:w-[calc(100%-80px)]`}>
-        <div className="container mx-auto px-3 md:px-4 lg:px-6 py-3 md:py-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-2 lg:space-y-0">
+        <div className="h-full container mx-auto px-3 md:px-4 lg:px-6">
+          <div className="h-full flex items-center justify-between">
             <div className="flex items-center space-x-3">
               {/* Navigation Menu Button - visible on tablet/mobile when sidebar is hidden */}
               <button
@@ -360,11 +360,11 @@ const ChapterReader: React.FC<ChapterReaderProps> = () => {
                 <Menu size={18} />
               </button>
               
-              <div className="flex flex-col">
-              <h1 className="text-lg md:text-xl font-bold tracking-tight mb-2 md:mb-3 truncate">{currentChapterData.title}</h1>
+              <div className="flex flex-col justify-center">
+              <h1 className="text-lg md:text-xl font-bold tracking-tight truncate">{currentChapterData.title}</h1>
               
               {/* Chapter Navigation under title */}
-              <div className="flex items-center justify-between space-x-2 md:space-x-3 lg:space-x-4">
+              <div className="flex items-center space-x-2 md:space-x-3 lg:space-x-4 mt-1">
                 <button
                   onClick={() => navigateChapter('prev')}
                   disabled={chapters.findIndex(c => c.id === currentChapter) <= 0}
@@ -404,7 +404,7 @@ const ChapterReader: React.FC<ChapterReaderProps> = () => {
               </div>
             </div>
             
-            <div className="flex items-center space-x-1 md:space-x-1.5 lg:space-x-2">
+            <div className="flex items-center h-full space-x-1 md:space-x-1.5 lg:space-x-2">
               <button
                 onClick={() => setIsBookmarked(!isBookmarked)}
                 className={`p-2 lg:p-3 rounded-lg transition-all duration-200 ${

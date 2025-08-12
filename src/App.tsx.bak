@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
-import { AuthProvider } from './contexts/AuthContext';
-import MouseParticles from './components/MouseParticles';
+import { AuthProvider } from './contexts/AuthContext'              className="absolute w-1 h-1 bg-white opacity-20 rounded-full animate-pulse"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${4 + Math.random() * 4}s`ort MouseParticles from './components/MouseParticles';
 import ShootingStars from './components/ShootingStars';
 import HomePage from './components/HomePage';
 import ChapterReader from './components/ChapterReader';

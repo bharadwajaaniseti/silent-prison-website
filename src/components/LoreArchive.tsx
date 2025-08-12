@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Archive, ChevronDown, ChevronRight, Search, Filter, Zap, Users, Globe, Clock } from 'lucide-react';
+import { Archive, ChevronDown, ChevronRight, Search, Users, Globe, Clock, Zap } from 'lucide-react';
 
 const LoreArchive: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
@@ -102,7 +102,7 @@ const LoreArchive: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 lg:ml-20">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 pt-[4.5rem] pb-8">
         {/* Header */}
         <div className="mb-12 text-center">
           <h1 className="font-orbitron text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">

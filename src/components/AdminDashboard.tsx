@@ -208,7 +208,7 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 lg:ml-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-[4.5rem] pb-8">
         {/* Header */}
         <div className="mb-6 md:mb-8">
           <h1 className="font-orbitron text-2xl md:text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">

@@ -7,12 +7,12 @@ interface HomePageProps {
 
 const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   return (
-    <div className="min-h-screen relative overflow-hidden lg:ml-20">
+    <div className="min-h-screen relative overflow-hidden">
       {/* Hero Section with Video Background Simulation */}
-      <section className="relative h-screen flex items-center justify-center">
+      <section className="relative min-h-screen flex items-center justify-center w-full">
         {/* Animated background */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-gray-900 to-red-900/30"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-gray-900 to-red-900/30 w-full"></div>
           <div className="absolute inset-0 opacity-20">
             {/* Simulated video background with animated elements */}
             <div className="w-full h-full relative overflow-hidden">
