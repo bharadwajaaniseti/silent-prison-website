@@ -86,15 +86,14 @@ function App() {
 
   return (
     <AuthProvider>
-      {/* Fixed Background container */}
-      <div className="fixed inset-0 bg-gray-900 overflow-hidden">
-        {/* Background Effects Layer */}
-        <div className="absolute inset-0 mix-blend-screen">
+      <div className="min-h-screen bg-gray-900 font-inter text-gray-100">
+        {/* Background Effects Layer - z-0 */}
+        <div className="fixed inset-0 z-0">
           <ShootingStars />
         </div>
 
-        {/* Floating Particles */}
-        <div className="absolute inset-0">
+        {/* Floating Particles - z-10 */}
+        <div className="fixed inset-0 z-10 pointer-events-none">
           {[...Array(12)].map((_, i) => (
             <div
               key={i}
@@ -108,30 +107,29 @@ function App() {
             />
           ))}
         </div>
-      </div>
 
-      {/* Content container - Scrollable */}
-      <div className="relative min-h-screen font-inter text-gray-100">
-        <Navigation 
-          currentSection={currentSection}
-          onNavigate={(section) => window.location.hash = section}
-          mobileMenuOpen={mobileMenuOpen}
-          setMobileMenuOpen={setMobileMenuOpen}
-          onAuthModalOpen={() => setAuthModalOpen(true)}
-        />
-        
-        {/* Main Content - Make backgrounds transparent */}
-        <div className="min-h-screen">
-          {renderCurrentSection()}
+        {/* Main Content - z-20 */}
+        <div className="relative z-20">
+          <Navigation 
+            currentSection={currentSection}
+            onNavigate={(section) => window.location.hash = section}
+            mobileMenuOpen={mobileMenuOpen}
+            setMobileMenuOpen={setMobileMenuOpen}
+            onAuthModalOpen={() => setAuthModalOpen(true)}
+          />
+          
+          <main className="min-h-screen">
+            {renderCurrentSection()}
+          </main>
         </div>
 
-        {/* Mouse Particles - Above content */}
-        <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 100 }}>
+        {/* Mouse Particles - z-30 */}
+        <div className="fixed inset-0 z-30 pointer-events-none">
           <MouseParticles />
         </div>
 
-        {/* Modal - Topmost */}
-        <div className="relative" style={{ zIndex: 110 }}>
+        {/* Modal - z-40 */}
+        <div className="relative z-40">
           <AuthModal 
             isOpen={authModalOpen}
             onClose={() => setAuthModalOpen(false)}

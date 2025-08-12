@@ -338,7 +338,7 @@ const ChapterReader: React.FC<ChapterReaderProps> = () => {
 
   return (
     <div className={`min-h-screen pt-[4.5rem] ${
-      isDarkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100' : 'bg-gradient-to-br from-gray-50 via-white to-gray-50 text-gray-900'
+      isDarkMode ? 'text-gray-100' : 'text-gray-900'
     }`}>
       {/* Fixed Header */}
       <header className={`fixed top-0 left-0 lg:left-20 right-0 z-50 backdrop-blur-md border-b h-[4.5rem] ${

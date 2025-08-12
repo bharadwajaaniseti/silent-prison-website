@@ -66,7 +66,7 @@ const InteractiveMap: React.FC = () => {
   const selectedRegionData = regions.find(r => r.id === selectedRegion);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 lg:ml-20">
+    <div className="min-h-screen text-gray-100 lg:ml-20">
       <div className="max-w-7xl mx-auto px-6 pt-[4.5rem] pb-8">
         {/* Header */}
         <div className="mb-12 text-center">

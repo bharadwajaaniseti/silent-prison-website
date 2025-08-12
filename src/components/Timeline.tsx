@@ -188,7 +188,7 @@ const Timeline: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 lg:ml-20">
+    <div className="min-h-screen text-gray-100 lg:ml-20">
       <div className="max-w-6xl mx-auto px-6 pt-[4.5rem] pb-8">
         {/* Header */}
         <div className="mb-12 text-center">

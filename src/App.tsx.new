@@ -17,10 +17,10 @@ import UserSettings from './components/UserSettings';
 import AuthModal from './components/AuthModal';
 
 function App() {
-  // Get initial section from URL hash or default to "home"
+  // Get initial section from URL hash or default to 'home'
   const getInitialSection = () => {
-    const hash = window.location.hash.replace("#", "");
-    return hash || "home";
+    const hash = window.location.hash.replace('#', '');
+    return hash || 'home';
   };
 
   const [currentSection, setCurrentSection] = useState(getInitialSection());
@@ -31,14 +31,14 @@ function App() {
   // Handle URL hash changes
   useEffect(() => {
     const handleHashChange = () => {
-      const newSection = window.location.hash.replace("#", "") || "home";
+      const newSection = window.location.hash.replace('#', '') || 'home';
       if (newSection !== currentSection) {
         setCurrentSection(newSection);
       }
     };
 
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, [currentSection]);
 
   // Simulate loading screen
@@ -55,83 +55,78 @@ function App() {
 
   const renderCurrentSection = () => {
     // Handle reader routes with chapter IDs
-    if (currentSection.startsWith("reader")) {
+    if (currentSection.startsWith('reader')) {
       return <ChapterReader />;
     }
     
     switch (currentSection) {
-      case "home":
+      case 'home':
         return <HomePage onNavigate={(section) => window.location.hash = section} />;
-      case "chapters":
+      case 'chapters':
         return <ChaptersPage />;
-      case "lore":
+      case 'lore':
         return <LoreArchive />;
-      case "characters":
+      case 'characters':
         return <CharacterHub />;
-      case "map":
+      case 'map':
         return <InteractiveMap />;
-      case "timeline":
+      case 'timeline':
         return <Timeline />;
-      case "admin":
+      case 'admin':
         return <AdminDashboard />;
-      case "member":
+      case 'member':
         return <MemberPage />;
-      case "settings":
+      case 'settings':
         return <UserSettings />;
       default:
-        window.location.hash = "home";
+        window.location.hash = 'home';
         return null;
     }
   };
 
   return (
     <AuthProvider>
-      {/* Fixed Background container */}
-      <div className="fixed inset-0 bg-gray-900 overflow-hidden">
-        {/* Background Effects Layer */}
-        <div className="absolute inset-0 mix-blend-screen">
-          <ShootingStars />
+      <div className="relative min-h-screen overflow-hidden">
+        {/* Fixed Background Layer */}
+        <div className="fixed inset-0 bg-gray-900">
+          <div className="absolute inset-0 w-full h-full">
+            <ShootingStars />
+          </div>
+          <div className="absolute inset-0 w-full h-full">
+            {[...Array(12)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-1 h-1 bg-white opacity-20 rounded-full animate-pulse"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 5}s`,
+                  animationDuration: `${4 + Math.random() * 4}s`
+                }}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* Floating Particles */}
-        <div className="absolute inset-0">
-          {[...Array(12)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-1 h-1 bg-white opacity-20 rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${4 + Math.random() * 4}s`
-              }}
-            />
-          ))}
-        </div>
-      </div>
+        {/* Main Content */}
+        <div className="relative min-h-screen z-10 font-inter text-gray-100">
+          <Navigation 
+            currentSection={currentSection}
+            onNavigate={(section) => window.location.hash = section}
+            mobileMenuOpen={mobileMenuOpen}
+            setMobileMenuOpen={setMobileMenuOpen}
+            onAuthModalOpen={() => setAuthModalOpen(true)}
+          />
+          
+          <main className="min-h-screen">
+            {renderCurrentSection()}
+          </main>
 
-      {/* Content container - Scrollable */}
-      <div className="relative min-h-screen font-inter text-gray-100">
-        <Navigation 
-          currentSection={currentSection}
-          onNavigate={(section) => window.location.hash = section}
-          mobileMenuOpen={mobileMenuOpen}
-          setMobileMenuOpen={setMobileMenuOpen}
-          onAuthModalOpen={() => setAuthModalOpen(true)}
-        />
-        
-        {/* Main Content - Make backgrounds transparent */}
-        <div className="min-h-screen">
-          {renderCurrentSection()}
-        </div>
+          {/* Overlay Elements */}
+          <div className="fixed inset-0 pointer-events-none z-20">
+            <MouseParticles />
+          </div>
 
-        {/* Mouse Particles - Above content */}
-        <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 100 }}>
-          <MouseParticles />
-        </div>
-
-        {/* Modal - Topmost */}
-        <div className="relative" style={{ zIndex: 110 }}>
           <AuthModal 
             isOpen={authModalOpen}
             onClose={() => setAuthModalOpen(false)}
