@@ -38,7 +38,7 @@ const MemberPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 lg:ml-20">
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-6 pt-4 pb-8">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">

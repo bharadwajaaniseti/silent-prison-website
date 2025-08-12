@@ -94,8 +94,10 @@ function App() {
           onAuthModalOpen={() => setAuthModalOpen(true)}
         />
         
-        <main className="relative">
-          {renderCurrentSection()}
+        <main className="relative pt-20 lg:pl-20">
+          <div className="w-full min-h-screen">
+            {renderCurrentSection()}
+          </div>
         </main>
 
         {/* Mouse Particles */}

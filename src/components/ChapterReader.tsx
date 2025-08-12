@@ -16,7 +16,6 @@ const getPaginatedContent = (content: string, targetCharsPerPage: number) => {
     .replace(/\n{3,}/g, '\n\n');
 
   const paragraphs = normalized.split('\n\n').map(p => p.trim()).filter(Boolean);
-
   const pages: string[] = [];
   let currentPage = '';
   let currentPageLength = 0;
@@ -43,13 +42,12 @@ const getPaginatedContent = (content: string, targetCharsPerPage: number) => {
         .filter(Boolean);
 
       let currentSentenceGroup = '';
-      
+
       for (const sentence of sentences) {
         const sentenceWithPunctuation = sentence.match(/[.!?]$/) ? sentence : sentence + '.';
         const sentenceLength = sentenceWithPunctuation.length + 1; // +1 for space
 
         if (currentSentenceGroup && (currentSentenceGroup.length + sentenceLength) > maxPageLength) {
-          // Add current sentence group to current page or start new page
           if (currentPageLength > 0 && (currentPageLength + currentSentenceGroup.length + 2) > maxPageLength) {
             pages.push(currentPage.trim());
             currentPage = currentSentenceGroup + '\n\n';
@@ -76,7 +74,6 @@ const getPaginatedContent = (content: string, targetCharsPerPage: number) => {
         }
       }
     } else {
-      // Paragraph fits, add it to current page
       currentPage += paragraph + '\n\n';
       currentPageLength += paragraphLength;
     }
@@ -90,14 +87,11 @@ const getPaginatedContent = (content: string, targetCharsPerPage: number) => {
   };
 };
 
-
-
 /** ---------- Small helpers ---------- */
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
 
 /** ---------- Component ---------- */
 const ChapterReader: React.FC<ChapterReaderProps> = () => {
-  // State management
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [currentChapter, setCurrentChapter] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -114,61 +108,58 @@ const ChapterReader: React.FC<ChapterReaderProps> = () => {
   const [pageContent, setPageContent] = useState<string>('');
   const [pageCache, setPageCache] = useState<Record<string, { pages: string[]; totalPages: number }>>({});
 
-  const currentChapterData = chapters.find(ch => ch.id === currentChapter) || chapters[0] || { id: '1', title: 'No Chapter Found', content: 'No chapters available.', isPublished: false, memberOnly: false, createdAt: '', updatedAt: '', volume: '' };
+  const currentChapterData = chapters.find(ch => ch.id === currentChapter) || chapters[0] || {
+    id: '1',
+    title: 'No Chapter Found',
+    content: 'No chapters available.',
+    isPublished: false,
+    memberOnly: false,
+    createdAt: '',
+    updatedAt: '',
+    volume: ''
+  };
 
-  // hash: #reader/chapter-id or #reader/:id or ?chapter=:id
+  /** Parse chapter ID from hash */
   const applyFromHash = useCallback(() => {
     const hash = window.location.hash || '';
-    
-    // Handle #reader/chapter-XXXXX format
+
     const chapterMatch = hash.match(/reader\/chapter-(.+)/);
     if (chapterMatch) {
-      const id = chapterMatch[1];
-      const fullId = `chapter-${id}`;
-      if (chapters.some(ch => ch.id === fullId)) {
-        if (fullId !== currentChapter) {
-          setCurrentChapter(fullId);
-        }
+      const id = `chapter-${chapterMatch[1]}`;
+      if (chapters.some(ch => ch.id === id) && id !== currentChapter) {
+        setCurrentChapter(id);
       }
       return;
     }
-    
-    // Handle #reader/:id format (could be string or number)
+
     const idMatch = hash.match(/reader\/(.+)/);
     if (idMatch) {
       const id = idMatch[1];
-      // All chapter IDs are now strings
-      if (chapters.some(ch => ch.id === id)) {
-        if (id !== currentChapter) {
-          setCurrentChapter(id);
-        }
+      if (chapters.some(ch => ch.id === id) && id !== currentChapter) {
+        setCurrentChapter(id);
       }
       return;
     }
-    
-    // Handle query string format
+
     const qs = hash.split('?')[1];
     if (qs) {
       const params = new URLSearchParams(qs);
       const chapterId = params.get('chapter');
-      if (chapterId && chapters.some(ch => ch.id === chapterId)) {
-        if (chapterId !== currentChapter) {
-          setCurrentChapter(chapterId);
-        }
+      if (chapterId && chapters.some(ch => ch.id === chapterId) && chapterId !== currentChapter) {
+        setCurrentChapter(chapterId);
       }
     }
-    
-    // If no valid chapter found in hash and we have chapters, set to first chapter
-    if (chapters.length > 0 && currentChapter === 1 && !chapters.some(ch => ch.id === 1)) {
+
+    if (chapters.length > 0 && !currentChapter) {
       setCurrentChapter(chapters[0].id);
     }
   }, [chapters, currentChapter]);
-  // Navigation handler
+
+  /** Navigation handlers */
   const navigateHash = useCallback((path: string) => {
     window.location.hash = path;
   }, []);
 
-  // Chapter navigation
   const navigateChapter = useCallback((direction: ChapterNavigation) => {
     const currentIndex = chapters.findIndex(ch => ch.id === currentChapter);
     if (direction === 'prev' && currentIndex > 0) {
@@ -184,10 +175,9 @@ const ChapterReader: React.FC<ChapterReaderProps> = () => {
     }
   }, [chapters, currentChapter, navigateHash]);
 
-  // Page navigation
   const navigatePage = useCallback((page: number) => {
     setCurrentPage(prevPage => {
-      const newPage = Math.max(1, Math.min(page, totalPages));
+      const newPage = clamp(page, 1, totalPages);
       if (newPage !== prevPage) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -195,87 +185,70 @@ const ChapterReader: React.FC<ChapterReaderProps> = () => {
     });
   }, [totalPages]);
 
-  // Load content for a chapter (with cache)
+  /** Load chapter content (cached) */
   const loadChapterContent = useCallback(() => {
     if (!currentChapterData) return;
-
     const cached = pageCache[currentChapterData.id];
     if (cached) {
       const total = cached.totalPages || (cached.pages?.length ?? 1);
       setTotalPages(total);
-      const safeIndex = clamp(currentPage - 1, 0, total - 1);
-      setPageContent(cached.pages?.[safeIndex] || '');
+      setPageContent(cached.pages[clamp(currentPage - 1, 0, total - 1)] || '');
       return;
     }
-
-    // Compute and cache
     const { pages, totalPages: total } = getPaginatedContent(currentChapterData.content, 3000);
     setPageCache(prev => ({
       ...prev,
       [currentChapterData.id]: { pages, totalPages: total }
     }));
     setTotalPages(total);
-    const safeIndex = clamp(currentPage - 1, 0, total - 1);
-    setPageContent(pages[safeIndex] || '');
+    setPageContent(pages[clamp(currentPage - 1, 0, total - 1)] || '');
   }, [currentChapterData, currentPage, pageCache]);
 
-  // Render text paragraphs nicely (no HTML injection)
-  const renderText = useCallback(
-    (text: string) => {
-      if (!text) {
-        return <p className="text-gray-400">No content available for this page.</p>;
-      }
+  /** Render content paragraphs */
+  const renderText = useCallback((text: string) => {
+    if (!text) return <p className="text-gray-400">No content available for this page.</p>;
+    const paragraphs = text
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .split(/\n{2,}/)
+      .map(p => p.trim())
+      .filter(Boolean);
+    return (
+      <article
+        className="max-w-none"
+        style={{
+          fontSize: `${fontSize}px`,
+          lineHeight: '1.8',
+          color: isDarkMode ? '#e5e7eb' : '#1f2937',
+        }}
+      >
+        {paragraphs.map((paragraph, idx) => {
+          const lines = paragraph.split('\n').map(l => l.trim()).filter(Boolean);
+          return (
+            <div key={idx} className="mb-6 last:mb-0">
+              {lines.map((line, li) => (
+                <p
+                  key={li}
+                  className={li > 0 ? 'mt-4' : ''}
+                  style={{
+                    textIndent: li === 0 ? '1.5em' : '0',
+                    textAlign: 'justify',
+                    textJustify: 'inter-word',
+                    hyphens: 'auto',
+                  }}
+                >
+                  {line || '\u00A0'}
+                </p>
+              ))}
+            </div>
+          );
+        })}
+      </article>
+    );
+  }, [fontSize, isDarkMode]);
 
-      const normalized = text
-        .replace(/\r\n/g, '\n')
-        .replace(/\r/g, '\n')
-        .replace(/\n{3,}/g, '\n\n');
-
-      const paragraphs = normalized
-        .split(/\n{2,}/)
-        .map(p => p.trim())
-        .filter(Boolean);
-
-      return (
-        <article
-          className="max-w-none"
-          style={{
-            fontSize: `${fontSize}px`,
-            lineHeight: '1.8',
-            color: isDarkMode ? '#e5e7eb' : '#1f2937',
-          }}
-        >
-          {paragraphs.map((paragraph, idx) => {
-            const lines = paragraph
-              .split('\n')
-              .map(l => l.trim())
-              .filter(l => l.length > 0);
-            return (
-              <div key={idx} className="mb-6 last:mb-0">
-                {lines.map((line, li) => (
-                  <p
-                    key={li}
-                    className={li > 0 ? 'mt-4' : ''}
-                    style={{
-                      textIndent: li === 0 ? '1.5em' : '0',
-                      textAlign: 'justify',
-                      textJustify: 'inter-word',
-                      hyphens: 'auto',
-                    }}
-                  >
-                    {line || '\u00A0'}
-                  </p>
-                ))}
-              </div>
-            );
-          })}
-        </article>
-      );
-    },
-    [fontSize, isDarkMode]
-  );
-
-  // Toggles
+  /** Toggles */
   const toggleDarkMode = useCallback(() => {
     setIsDarkMode(prev => {
       const next = !prev;
@@ -283,23 +256,17 @@ const ChapterReader: React.FC<ChapterReaderProps> = () => {
       return next;
     });
   }, []);
+  const handleFontSizeChange = useCallback((size: number) => {
+    setFontSize(clamp(size, 12, 24));
+  }, []);
 
-  const handleFontSizeChange = useCallback(
-    (size: number) => setFontSize(clamp(size, 12, 24)),
-    []
-  );
-
-
-
-  // Load chapters from JSON file
+  /** Effects */
   useEffect(() => {
     const loadChapters = async () => {
       try {
         setIsLoading(true);
         const loadedChapters = await fetchChapters();
         setChapters(loadedChapters);
-        
-        // If no current chapter is set and we have chapters, set to first one
         if (loadedChapters.length > 0 && !loadedChapters.some(ch => ch.id === currentChapter)) {
           setCurrentChapter(loadedChapters[0].id);
         }
@@ -309,141 +276,55 @@ const ChapterReader: React.FC<ChapterReaderProps> = () => {
         setIsLoading(false);
       }
     };
-    
     loadChapters();
   }, []);
 
-  // Keep dark class in sync
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
 
-  // Load page when chapter or page changes
   useEffect(() => {
     loadChapterContent();
   }, [currentChapter, currentPage, loadChapterContent]);
 
-  // Keyboard navigation
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
-
       if (e.key === 'ArrowLeft') {
         if (currentPage > 1) {
           e.preventDefault();
           navigatePage(currentPage - 1);
         } else {
-          const idx = chapters.findIndex(c => c.id === currentChapter);
-          if (idx > 0) {
-            e.preventDefault();
-            navigateChapter('prev');
-          }
+          navigateChapter('prev');
         }
       } else if (e.key === 'ArrowRight') {
         if (currentPage < totalPages) {
           e.preventDefault();
           navigatePage(currentPage + 1);
         } else {
-          const idx = chapters.findIndex(c => c.id === currentChapter);
-          if (idx >= 0 && idx < chapters.length - 1) {
-            e.preventDefault();
-            navigateChapter('next');
-          }
+          navigateChapter('next');
         }
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [chapters, currentChapter, currentPage, totalPages, navigateChapter, navigatePage]);
+  }, [currentPage, totalPages, navigateChapter, navigatePage]);
 
-  /** Keep dark class in sync */
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkMode);
-  }, [isDarkMode]);
-
-  /** Load page when chapter or page changes */
-  useEffect(() => {
-    loadChapterContent();
-  }, [currentChapter, currentPage, loadChapterContent]);
-
-  /** Keyboard navigation */
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
-
-      if (e.key === 'ArrowLeft') {
-        if (currentPage > 1) {
-          e.preventDefault();
-          navigatePage(currentPage - 1);
-        } else {
-          const idx = chapters.findIndex(c => c.id === currentChapter);
-          if (idx > 0) {
-            e.preventDefault();
-            navigateChapter('prev');
-          }
-        }
-      } else if (e.key === 'ArrowRight') {
-        if (currentPage < totalPages) {
-          e.preventDefault();
-          navigatePage(currentPage + 1);
-        } else {
-          const idx = chapters.findIndex(c => c.id === currentChapter);
-          if (idx >= 0 && idx < chapters.length - 1) {
-            e.preventDefault();
-            navigateChapter('next');
-          }
-        }
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [chapters, currentChapter, currentPage, totalPages, navigateChapter, navigatePage]);
-
-  /** Load chapters from localStorage */
-  useEffect(() => {
-    try {
-      const savedChapters = localStorage.getItem('chapters');
-      if (savedChapters) {
-        const parsedChapters = JSON.parse(savedChapters);
-        setChapters(parsedChapters);
-      }
-    } catch (error) {
-      console.error('Error loading chapters:', error);
-    }
-  }, []);
-
-  /** Hash navigation effect */
   useEffect(() => {
     if (chapters.length > 0) {
       applyFromHash();
     }
-    
-    // Listen for hash changes
     const handleHashChange = () => {
       if (chapters.length > 0) {
         applyFromHash();
       }
     };
-    
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [applyFromHash, chapters.length]);
 
-  /** Initialize loading state */
-  useEffect(() => {
-    // Only show loading if we don't have chapters yet
-    if (chapters.length > 0) {
-      setIsLoading(false);
-    }
-  }, [chapters]);
-
-
-
-  // UI: loading
+  /** UI */
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-gray-100">
@@ -455,18 +336,14 @@ const ChapterReader: React.FC<ChapterReaderProps> = () => {
     );
   }
 
-return (
-  <div
-    className={`min-h-screen ${
+  return (
+    <div className={`min-h-screen pt-16 lg:pt-0 ${
       isDarkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100' : 'bg-gradient-to-br from-gray-50 via-white to-gray-50 text-gray-900'
-    }`}
-  >
+    }`}>
       {/* Fixed Header */}
-      <header
-        className={`fixed top-0 left-0 lg:left-20 right-0 z-50 backdrop-blur-md border-b ${
-          isDarkMode ? 'border-gray-700/50 bg-gray-900/80' : 'border-gray-200/50 bg-white/80'
-        } shadow-lg w-full lg:w-[calc(100%-80px)]`}
-      >
+      <header className={`fixed top-0 left-0 lg:left-20 right-0 z-50 backdrop-blur-md border-b ${
+        isDarkMode ? 'border-gray-700/50 bg-gray-900/80' : 'border-gray-200/50 bg-white/80'
+      } shadow-lg w-full lg:w-[calc(100%-80px)]`}>
         <div className="container mx-auto px-3 md:px-4 lg:px-6 py-3 md:py-4">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-2 lg:space-y-0">
             <div className="flex items-center space-x-3">
@@ -568,95 +445,88 @@ return (
       </header>
 
       {/* Main content */}
-      <main className="flex-1 flex flex-col pt-20">
-
-
-        {/* Reading Area */}
-        <div className="flex-1 flex items-center justify-center py-8">
-          <div className="container mx-auto px-6 max-w-4xl">
-            <div className={`rounded-2xl p-8 md:p-12 shadow-2xl ${
-              isDarkMode 
-                ? 'bg-gray-800/50 border border-gray-700/30' 
-                : 'bg-white/80 border border-gray-200/30'
-            } backdrop-blur-sm`}>
-              
-              {/* Chapter content */}
-              <div className="prose prose-lg max-w-none" style={{ fontSize: `${fontSize}px` }}>
-                {renderText(pageContent)}
-              </div>
-              
-              {/* Reading Progress Bar */}
-              <div className="mt-8 mb-6">
-                <div className={`w-full h-1 rounded-full ${
-                  isDarkMode ? 'bg-gray-700/50' : 'bg-gray-200/50'
-                }`}>
-                  <div 
-                    className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300 ease-out"
-                    style={{ 
-                      width: `${totalPages > 0 ? (currentPage / totalPages) * 100 : 0}%` 
-                    }}
-                  />
-                </div>
-                <div className="flex justify-between items-center mt-2">
-                  <span className={`text-xs font-medium ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}>
-                    Progress
-                  </span>
-                  <span className={`text-xs font-medium ${
-                    isDarkMode ? 'text-blue-400' : 'text-blue-600'
-                  }`}>
-                    {totalPages > 0 ? Math.round((currentPage / totalPages) * 100) : 0}%
-                  </span>
-                </div>
-              </div>
-              
-              {/* Page Navigation */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center space-x-4 mt-12 pt-8 border-t border-gray-300/20">
-                  <button
-                    onClick={() => navigatePage(currentPage - 1)}
-                    disabled={currentPage <= 1}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                      currentPage <= 1
-                        ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
-                        : isDarkMode
-                          ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                          : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                    }`}
-                  >
-                    <ArrowLeft size={16} />
-                    <span>Previous</span>
-                  </button>
-                  
-                  <span className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                    isDarkMode ? 'bg-gray-700/50 text-gray-300' : 'bg-gray-100 text-gray-600'
-                  }`}>
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  
-                  <button
-                    onClick={() => navigatePage(currentPage + 1)}
-                    disabled={currentPage >= totalPages}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                      currentPage >= totalPages
-                        ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
-                        : isDarkMode
-                          ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                          : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                    }`}
-                  >
-                    <span>Next</span>
-                    <ArrowRight size={16} />
-                  </button>
-                </div>
-              )}
+      <div className="flex-1 flex items-center justify-center py-8">
+        <div className="container mx-auto px-6 max-w-4xl">
+          <div className={`rounded-2xl p-8 md:p-12 shadow-2xl ${
+            isDarkMode 
+              ? 'bg-gray-800/50 border border-gray-700/30' 
+              : 'bg-white/80 border border-gray-200/30'
+          } backdrop-blur-sm`}>
+            
+            {/* Chapter content */}
+            <div className="prose prose-lg max-w-none" style={{ fontSize: `${fontSize}px` }}>
+              {renderText(pageContent)}
             </div>
+            
+            {/* Reading Progress Bar */}
+            <div className="mt-8 mb-6">
+              <div className={`w-full h-1 rounded-full ${
+                isDarkMode ? 'bg-gray-700/50' : 'bg-gray-200/50'
+              }`}>
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300 ease-out"
+                  style={{ 
+                    width: `${totalPages > 0 ? (currentPage / totalPages) * 100 : 0}%` 
+                  }}
+                />
+              </div>
+              <div className="flex justify-between items-center mt-2">
+                <span className={`text-xs font-medium ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  Progress
+                </span>
+                <span className={`text-xs font-medium ${
+                  isDarkMode ? 'text-blue-400' : 'text-blue-600'
+                }`}>
+                  {totalPages > 0 ? Math.round((currentPage / totalPages) * 100) : 0}%
+                </span>
+              </div>
+            </div>
+            
+            {/* Page Navigation */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center space-x-4 mt-12 pt-8 border-t border-gray-300/20">
+                <button
+                  onClick={() => navigatePage(currentPage - 1)}
+                  disabled={currentPage <= 1}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                    currentPage <= 1
+                      ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
+                      : isDarkMode
+                        ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                        : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                  }`}
+                >
+                  <ArrowLeft size={16} />
+                  <span>Previous</span>
+                </button>
+                
+                <span className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                  isDarkMode ? 'bg-gray-700/50 text-gray-300' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                
+                <button
+                  onClick={() => navigatePage(currentPage + 1)}
+                  disabled={currentPage >= totalPages}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                    currentPage >= totalPages
+                      ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
+                      : isDarkMode
+                        ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                        : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                  }`}
+                >
+                  <span>Next</span>
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            )}
           </div>
         </div>
-      </main>
-
-
+      </div>
 
       {/* Settings modal */}
       {showSettings && (
