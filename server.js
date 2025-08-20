@@ -1,6 +1,10 @@
 import 'dotenv/config';
 
 import express from 'express';
+import loreEntriesHandler from './api/lore-entries.js';
+import charactersHandler from './api/characters.js';
+import regionsHandler from './api/regions.js';
+import timelineEventsHandler from './api/timeline-events.js';
 import cors from 'cors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -329,6 +333,47 @@ app.put('/api/users/profile', async (req, res) => {
 
 /* ---------- Start ---------- */
 app.listen(PORT, () => {
+// API routes for all sections
+// Place DELETE and PUT routes before catch-all routes for correct matching
+app.delete('/api/lore-entries/:id', (req, res) => {
+  req.url = `/api/lore-entries/${req.params.id}`;
+  loreEntriesHandler(req, res);
+});
+app.put('/api/lore-entries/:id', (req, res) => {
+  req.url = `/api/lore-entries/${req.params.id}`;
+  loreEntriesHandler(req, res);
+});
+app.all('/api/lore-entries', (req, res) => loreEntriesHandler(req, res));
+
+app.delete('/api/characters/:id', (req, res) => {
+  req.url = `/api/characters/${req.params.id}`;
+  charactersHandler(req, res);
+});
+app.put('/api/characters/:id', (req, res) => {
+  req.url = `/api/characters/${req.params.id}`;
+  charactersHandler(req, res);
+});
+app.all('/api/characters', (req, res) => charactersHandler(req, res));
+
+app.delete('/api/regions/:id', (req, res) => {
+  req.url = `/api/regions/${req.params.id}`;
+  regionsHandler(req, res);
+});
+app.put('/api/regions/:id', (req, res) => {
+  req.url = `/api/regions/${req.params.id}`;
+  regionsHandler(req, res);
+});
+app.all('/api/regions', (req, res) => regionsHandler(req, res));
+
+app.delete('/api/timeline-events/:id', (req, res) => {
+  req.url = `/api/timeline-events/${req.params.id}`;
+  timelineEventsHandler(req, res);
+});
+app.put('/api/timeline-events/:id', (req, res) => {
+  req.url = `/api/timeline-events/${req.params.id}`;
+  timelineEventsHandler(req, res);
+});
+app.all('/api/timeline-events', (req, res) => timelineEventsHandler(req, res));
   console.log(`API running on http://localhost:${PORT}`);
 });
 

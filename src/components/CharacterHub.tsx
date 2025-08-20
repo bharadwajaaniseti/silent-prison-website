@@ -1,12 +1,32 @@
 import React, { useState } from 'react';
 import { Users, Search, Filter, Zap, Heart, Skull, Eye, AlertTriangle } from 'lucide-react';
 
-const CharacterHub: React.FC = () => {
+interface Character {
+  id: string;
+  name: string;
+  title: string;
+  status: string;
+  affiliation: string;
+  powerType: string;
+  powerLevel: number;
+  image: string;
+  description: string;
+  background: string;
+  relationships: { name: string; type: string; status: string }[];
+  abilities: string[];
+}
+
+interface CharacterHubProps {
+  characters?: Character[];
+}
+
+const CharacterHub: React.FC<CharacterHubProps> = ({ characters }) => {
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const characters = [
+  // Use characters prop if provided, else fallback to default
+  const defaultCharacters = [
     {
       id: 'kael',
       name: 'Kael Vorthak',

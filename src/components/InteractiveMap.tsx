@@ -1,11 +1,28 @@
 import React, { useState } from 'react';
 import { Map, ZoomIn, ZoomOut, Info, Navigation } from 'lucide-react';
 
-const InteractiveMap: React.FC = () => {
+export interface Region {
+  id: string;
+  name: string;
+  subtitle: string;
+  position: { x: number; y: number };
+  color: string;
+  description: string;
+  keyLocations: string[];
+  population: string;
+  threat: string;
+}
+
+interface InteractiveMapProps {
+  regions?: Region[];
+}
+
+const InteractiveMap: React.FC<InteractiveMapProps> = ({ regions }) => {
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
 
-  const regions = [
+  // Use regions prop if provided, else fallback to default
+  const defaultRegions = [
     {
       id: 'oris',
       name: 'Oris',
@@ -62,8 +79,9 @@ const InteractiveMap: React.FC = () => {
       threat: 'Reality Breakdown'
     }
   ];
+  const regionList = regions || defaultRegions;
 
-  const selectedRegionData = regions.find(r => r.id === selectedRegion);
+  const selectedRegionData = regionList.find(r => r.id === selectedRegion);
 
   return (
     <div className="min-h-screen text-gray-100 lg:ml-20">
@@ -128,7 +146,7 @@ const InteractiveMap: React.FC = () => {
                   className="relative w-full h-full transition-transform duration-300"
                   style={{ transform: `scale(${zoomLevel})` }}
                 >
-                  {regions.map(region => (
+                  {regionList.map(region => (
                     <div
                       key={region.id}
                       className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group"
@@ -276,7 +294,7 @@ const InteractiveMap: React.FC = () => {
 
         {/* Quick Navigation */}
         <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {regions.map(region => (
+          {regionList.map(region => (
             <button
               key={region.id}
               onClick={() => setSelectedRegion(region.id)}

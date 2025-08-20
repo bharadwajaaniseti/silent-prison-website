@@ -25,6 +25,10 @@ import {
   migrateFromLocalStorage 
 } from '../utils/chaptersStorage';
 import { fetchSiteStats, fetchRecentActivity } from '../api/stats';
+import { apiFetchLoreEntries, apiAddLoreEntry, apiDeleteLoreEntry, apiUpdateLoreEntry } from '../api/lore-entries';
+import CharacterAdmin from './CharacterAdmin';
+import MapAdmin from './MapAdmin';
+import TimelineAdmin from './TimelineAdmin';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -45,6 +49,7 @@ const AdminDashboard: React.FC = () => {
   const [showLoreForm, setShowLoreForm] = useState(false);
   const [editingChapter, setEditingChapter] = useState<Chapter | null>(null);
   const [editingLore, setEditingLore] = useState<LoreEntry | null>(null);
+  const [isLoadingLore, setIsLoadingLore] = useState(true);
 
 
   useEffect(() => {
@@ -132,27 +137,34 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleLoreSubmit = (loreData: Partial<LoreEntry>) => {
-    if (editingLore) {
-      const updatedLore = loreEntries.map(entry => 
-        entry.id === editingLore.id ? { ...entry, ...loreData } : entry
-      );
-      saveLoreEntries(updatedLore);
-      setEditingLore(null);
-    } else {
-      const newLore: LoreEntry = {
-        id: `lore-${Date.now()}`,
-        category: loreData.category || '',
-        title: loreData.title || '',
-        summary: loreData.summary || '',
-        content: loreData.content || '',
-        tags: loreData.tags || [],
+  const handleLoreSubmit = async (loreData: Partial<LoreEntry>) => {
+    try {
+      const newLore = await apiAddLoreEntry({
+        ...loreData,
+        tags: Array.isArray(loreData.tags) ? loreData.tags : (loreData.tags || '').split(',').map((t: string) => t.trim()).filter((t: string) => t),
         publishDate: new Date().toISOString(),
         isPublished: loreData.isPublished || false
-      };
-      saveLoreEntries([...loreEntries, newLore]);
+      });
+      setLoreEntries(prev => [...prev, newLore]);
+      setShowLoreForm(false);
+    } catch (error) {
+      alert('Error saving lore entry. Please try again.');
     }
-    setShowLoreForm(false);
+  };
+
+  const handleLoreEdit = async (loreData: Partial<LoreEntry>) => {
+    if (!editingLore) return;
+    try {
+      const updatedLore = await apiUpdateLoreEntry(editingLore.id, {
+        ...loreData,
+        tags: Array.isArray(loreData.tags) ? loreData.tags : (loreData.tags || '').split(',').map((t: string) => t.trim()).filter((t: string) => t),
+      });
+      setLoreEntries(prev => prev.map(entry => entry.id === editingLore.id ? updatedLore : entry));
+      setEditingLore(null);
+      setShowLoreForm(false);
+    } catch (error) {
+      alert('Error updating lore entry. Please try again.');
+    }
   };
 
   const handleDeleteChapter = async (id: string) => {
@@ -181,12 +193,26 @@ const AdminDashboard: React.FC = () => {
     setShowChapterForm(true);
   };
 
-  const deleteLore = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this lore entry?')) {
-      const updatedLore = loreEntries.filter(entry => entry.id !== id);
-      saveLoreEntries(updatedLore);
+  const deleteLore = async (id: string) => {
+    try {
+      const success = await apiDeleteLoreEntry(id);
+      if (success) {
+        setLoreEntries(prev => prev.filter(entry => entry.id !== id));
+      } else {
+        alert('Failed to delete lore entry.');
+      }
+    } catch {
+      alert('Error deleting lore entry.');
     }
   };
+
+  useEffect(() => {
+    setIsLoadingLore(true);
+    apiFetchLoreEntries().then(entries => {
+      setLoreEntries(entries);
+      setIsLoadingLore(false);
+    });
+  }, []);
 
   if (user?.role !== 'admin') {
     return (
@@ -199,10 +225,14 @@ const AdminDashboard: React.FC = () => {
     );
   }
 
+  // Add new tabs for Characters, Map, Timeline
   const tabs = [
     { id: 'overview', name: 'Overview', icon: BarChart3 },
     { id: 'chapters', name: 'Chapters', icon: BookOpen },
     { id: 'lore', name: 'Lore', icon: Archive },
+    { id: 'characters', name: 'Characters', icon: Users },
+    { id: 'map', name: 'Map', icon: Archive },
+    { id: 'timeline', name: 'Timeline', icon: Calendar },
     { id: 'users', name: 'Users', icon: Users },
   ];
 
@@ -508,6 +538,18 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
 
+        {activeTab === 'characters' && (
+          <CharacterAdmin />
+        )}
+
+        {activeTab === 'map' && (
+          <MapAdmin />
+        )}
+
+        {activeTab === 'timeline' && (
+          <TimelineAdmin />
+        )}
+
         {activeTab === 'users' && (
           <div className="space-y-6">
             <h2 className="font-orbitron text-2xl font-bold text-blue-300">User Management</h2>
@@ -534,7 +576,7 @@ const AdminDashboard: React.FC = () => {
       {showLoreForm && (
         <LoreForm
           loreEntry={editingLore}
-          onSubmit={handleLoreSubmit}
+          onSubmit={editingLore ? handleLoreEdit : handleLoreSubmit}
           onClose={() => {
             setShowLoreForm(false);
             setEditingLore(null);

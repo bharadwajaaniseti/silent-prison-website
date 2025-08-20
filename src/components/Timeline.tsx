@@ -1,11 +1,27 @@
 import React, { useState } from 'react';
 import { Clock, ChevronDown, ChevronRight, Calendar, Zap } from 'lucide-react';
 
-const Timeline: React.FC = () => {
+export interface TimelineEvent {
+  id: string;
+  era: string;
+  year: string;
+  title: string;
+  type: string;
+  summary: string;
+  details: string;
+  impact: string;
+}
+
+interface TimelineProps {
+  events?: TimelineEvent[];
+}
+
+const Timeline: React.FC<TimelineProps> = ({ events }) => {
   const [expandedEvents, setExpandedEvents] = useState<Record<string, boolean>>({});
   const [selectedEra, setSelectedEra] = useState('all');
 
-  const timelineEvents = [
+  // Use events prop if provided, else fallback to default
+  const defaultEvents = [
     {
       id: 'ancient-era',
       era: 'ancient',
@@ -141,6 +157,7 @@ const Timeline: React.FC = () => {
       impact: 'Ongoing struggle for freedom and truth'
     }
   ];
+  const eventList = events || defaultEvents;
 
   const eras = [
     { id: 'all', name: 'All Events', icon: Clock },
@@ -158,7 +175,7 @@ const Timeline: React.FC = () => {
     }));
   };
 
-  const filteredEvents = timelineEvents.filter(event => 
+  const filteredEvents = eventList.filter(event => 
     selectedEra === 'all' || event.era === selectedEra
   );
 
