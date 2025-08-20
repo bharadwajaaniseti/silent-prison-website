@@ -18,20 +18,8 @@ interface Planet {
   hasRings: boolean; ringTilt: number; ringWidth: number; ringAlpha: number;
   spin: number; spinSpeed: number;
   atmosphereColor?: string;
-}
-
-interface BlackHole {
-  x: number; y: number;
-  eventHorizonR: number;
-  photonSphereR: number;
-  diskInnerR: number;
-  diskOuterR: number;
-  spin: number;
-  spinSpeed: number;
-  diskRotation: number;
-  diskRotationSpeed: number;
-  jetLength: number;
-  jetWidth: number;
+  depth: number;
+  orbitAngle?: number; // Added for orbital motion
 }
 
 /* ---------- Utils ---------- */
@@ -50,11 +38,7 @@ const ShootingStars: React.FC = () => {
   const starfieldRef = useRef<StaticStar[]>([]);
   const nebulaeRef = useRef<NebulaBlob[][]>([]);
   const planetsRef = useRef<Planet[]>([]);
-  const blackHoleRef = useRef<BlackHole | null>(null);
-  const texturesRef = useRef<{ earth: HTMLImageElement | null; mars: HTMLImageElement | null }>({
-    earth: null,
-    mars: null
-  });
+  const texturesRef = useRef<HTMLImageElement[]>([]);
   const rafRef = useRef<number>();
   const bgTimerRef = useRef<number>();
 
@@ -75,12 +59,6 @@ const ShootingStars: React.FC = () => {
   const NEBULA_BASE_ALPHA = 0.03;
   const BG_TWINKLE_SPEED: [number, number] = [0.002, 0.01];
 
-  const PLANET_COUNT = 2;
-  const PLANET_MIN_R = 60;
-  const PLANET_MAX_R = 120;
-
-  const BLACK_HOLE_ENABLED = true;
-
   /* Helpers */
   const setupCanvas = (canvas: HTMLCanvasElement) => {
     const dpr = Math.max(window.devicePixelRatio || 1, 1);
@@ -99,7 +77,10 @@ const ShootingStars: React.FC = () => {
     if (fgRef.current) fgCtxRef.current = setupCanvas(fgRef.current);
   };
 
-  const loadTextures = async () => {
+  const loadAllTextures = async () => {
+    const textureNames = [
+      'earth.jpg', 'mars.jpg', 'moon.jpg', 'jupiter.jpg', 'saturn.jpg', 'venus.jpg', 'neptune.jpg', 'uranus.jpg', 'mercury.jpg'
+    ];
     const loadImage = (src: string): Promise<HTMLImageElement> => {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -109,17 +90,14 @@ const ShootingStars: React.FC = () => {
         img.src = src;
       });
     };
-
-    try {
-      const [earth, mars] = await Promise.all([
-        loadImage('/textures/space/earth.jpg'),
-        loadImage('/textures/space/mars.jpg')
-      ]);
-      texturesRef.current = { earth, mars };
-    } catch (error) {
-      console.warn('Could not load planet textures:', error);
-      texturesRef.current = { earth: null, mars: null };
+    const textures: HTMLImageElement[] = [];
+    for (const name of textureNames) {
+      try {
+        const img = await loadImage(`/textures/space/${name}`);
+        textures.push(img);
+      } catch {}
     }
+    texturesRef.current = textures;
   };
 
   const seedStarfield = () => {
@@ -160,72 +138,41 @@ const ShootingStars: React.FC = () => {
     }
   };
 
+  // When seeding planets, give them random slow velocities
   const seedPlanets = () => {
     const w = bgRef.current?.clientWidth || 0;
     const h = bgRef.current?.clientHeight || 0;
+    const textures = texturesRef.current as HTMLImageElement[];
     planetsRef.current = [];
-    
-    const planetConfigs = [
-      {
-        texture: texturesRef.current.earth,
-        atmosphereColor: 'rgba(100, 150, 255, 0.3)',
-        hasRings: false
-      },
-      {
-        texture: texturesRef.current.mars,
-        atmosphereColor: 'rgba(255, 100, 50, 0.2)',
-        hasRings: Math.random() < 0.3
-      }
-    ];
-
-    for (let i = 0; i < PLANET_COUNT; i++) {
-      const r = rand(PLANET_MIN_R, PLANET_MAX_R);
-      const config = planetConfigs[i] || planetConfigs[0];
-      
+    const planetCount = Math.min(textures.length, 7 + Math.floor(Math.random() * 3));
+    for (let i = 0; i < planetCount; i++) {
+      const r = rand(40, 160);
+      const depth = rand(0.2, 1.0);
+      const alpha = clamp(0.18 + depth * 0.5, 0.18, 0.7);
+      // Give each planet a random slow velocity
+      const angle = rand(0, Math.PI * 2);
+      const speed = rand(0.15, 0.35) * (1.2 - depth); // Farther = slower
+      const vx = Math.cos(angle) * speed;
+      const vy = Math.sin(angle) * speed;
       planetsRef.current.push({
-        x: rand(-r, w + r),
-        y: rand(-r, h + r),
-        r,
-        texture: config.texture,
+        x: rand(r, w - r),
+        y: rand(r, h - r),
+        r: r * depth,
+        texture: textures[i],
         hue: rand(0, 360),
-        alpha: 0.8,
-        vx: rand(-0.03, 0.03),
-        vy: rand(-0.03, 0.03),
-        hasRings: config.hasRings,
-        ringTilt: rand(-0.5, 0.5),
-        ringWidth: rand(r * 1.4, r * 1.9),
-        ringAlpha: 0.4,
+        alpha,
+        vx,
+        vy,
+        hasRings: false,
+        ringTilt: 0,
+        ringWidth: 0,
+        ringAlpha: 0,
         spin: rand(0, Math.PI * 2),
-        spinSpeed: rand(-0.001, 0.001),
-        atmosphereColor: config.atmosphereColor,
+        spinSpeed: rand(-0.002, 0.002),
+        atmosphereColor: undefined,
+        depth,
       });
     }
-  };
-
-  const seedBlackHole = () => {
-    if (!BLACK_HOLE_ENABLED) { blackHoleRef.current = null; return; }
-    const w = bgRef.current?.clientWidth || 0;
-    const h = bgRef.current?.clientHeight || 0;
-    
-    // Position black hole in upper right area like the reference image
-    const cx = rand(w * 0.6, w * 0.9);
-    const cy = rand(h * 0.1, h * 0.4);
-    const eventHorizonR = rand(25, 35);
-    
-    blackHoleRef.current = {
-      x: cx,
-      y: cy,
-      eventHorizonR,
-      photonSphereR: eventHorizonR * 1.5,
-      diskInnerR: eventHorizonR * 2.5,
-      diskOuterR: eventHorizonR * 6,
-      spin: rand(0, Math.PI * 2),
-      spinSpeed: 0.005,
-      diskRotation: 0,
-      diskRotationSpeed: 0.008,
-      jetLength: eventHorizonR * 8,
-      jetWidth: eventHorizonR * 0.8,
-    };
   };
 
   const drawPlanets = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
@@ -241,6 +188,7 @@ const ShootingStars: React.FC = () => {
       if (p.y > h + p.r) p.y = -p.r;
 
       ctx.save();
+      ctx.globalAlpha = 0.22; // Make planets even dimmer
       ctx.translate(p.x, p.y);
       ctx.rotate(p.spin);
 
@@ -309,112 +257,90 @@ const ShootingStars: React.FC = () => {
     });
   };
 
-  const drawRealisticBlackHole = (ctx: CanvasRenderingContext2D) => {
-    const bh = blackHoleRef.current;
-    if (!bh) return;
-    
-    bh.spin += bh.spinSpeed;
-    bh.diskRotation += bh.diskRotationSpeed;
-
-    ctx.save();
-    ctx.translate(bh.x, bh.y);
-
-    // Draw relativistic jets (polar emissions)
-    ctx.save();
-    ctx.rotate(bh.spin);
-    
-    // Top jet
-    const jetGrad1 = ctx.createLinearGradient(0, -bh.eventHorizonR, 0, -bh.jetLength);
-    jetGrad1.addColorStop(0, 'rgba(100, 200, 255, 0.8)');
-    jetGrad1.addColorStop(0.3, 'rgba(150, 220, 255, 0.4)');
-    jetGrad1.addColorStop(1, 'rgba(200, 240, 255, 0.1)');
-    
-    ctx.fillStyle = jetGrad1;
-    ctx.beginPath();
-    ctx.moveTo(-bh.jetWidth/2, -bh.eventHorizonR);
-    ctx.lineTo(-bh.jetWidth/4, -bh.jetLength);
-    ctx.lineTo(bh.jetWidth/4, -bh.jetLength);
-    ctx.lineTo(bh.jetWidth/2, -bh.eventHorizonR);
-    ctx.closePath();
-    ctx.fill();
-    
-    // Bottom jet
-    const jetGrad2 = ctx.createLinearGradient(0, bh.eventHorizonR, 0, bh.jetLength);
-    jetGrad2.addColorStop(0, 'rgba(100, 200, 255, 0.8)');
-    jetGrad2.addColorStop(0.3, 'rgba(150, 220, 255, 0.4)');
-    jetGrad2.addColorStop(1, 'rgba(200, 240, 255, 0.1)');
-    
-    ctx.fillStyle = jetGrad2;
-    ctx.beginPath();
-    ctx.moveTo(-bh.jetWidth/2, bh.eventHorizonR);
-    ctx.lineTo(-bh.jetWidth/4, bh.jetLength);
-    ctx.lineTo(bh.jetWidth/4, bh.jetLength);
-    ctx.lineTo(bh.jetWidth/2, bh.eventHorizonR);
-    ctx.closePath();
-    ctx.fill();
-    
-    ctx.restore();
-
-    // Draw accretion disk with realistic colors and rotation
-    ctx.save();
-    ctx.rotate(bh.diskRotation);
-    
-    // Multiple disk layers for depth
-    const diskLayers = 8;
-    for (let i = 0; i < diskLayers; i++) {
-      const t = i / (diskLayers - 1);
-      const innerR = bh.diskInnerR + t * (bh.diskOuterR - bh.diskInnerR) * 0.3;
-      const outerR = bh.diskInnerR + t * (bh.diskOuterR - bh.diskInnerR);
-      
-      // Temperature gradient - hotter (bluer) near center, cooler (redder) outside
-      const temp = 1 - t * 0.8;
-      const hue = temp * 60 + 10; // From blue-white to orange-red
-      const sat = 90 - t * 20;
-      const light = 80 - t * 30;
-      const alpha = (0.6 - t * 0.4) * (1 - Math.sin(bh.diskRotation + t * Math.PI) * 0.2);
-      
-      const diskGrad = ctx.createRadialGradient(0, 0, innerR, 0, 0, outerR);
-      diskGrad.addColorStop(0, hsla(hue, sat, light, alpha));
-      diskGrad.addColorStop(0.4, hsla(hue + 10, sat - 10, light - 10, alpha * 0.8));
-      diskGrad.addColorStop(0.8, hsla(hue + 20, sat - 20, light - 20, alpha * 0.4));
-      diskGrad.addColorStop(1, 'rgba(0,0,0,0)');
-      
-      ctx.fillStyle = diskGrad;
+  // Orbit planets around a center point and rotate them
+  const ORBIT_CENTERS = [
+    { x: 0.25, y: 0.7 }, // left-bottom
+    { x: 0.75, y: 0.7 }, // right-bottom
+    { x: 0.5, y: 0.35 }, // center-top
+    { x: 0.5, y: 0.5 },  // center
+  ];
+  const ORBIT_RADII = [
+    0.18, 0.22, 0.32, 0.38, 0.45, 0.52, 0.6
+  ];
+  const drawDepthPlanets = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+    // Sort planets by depth so far ones are drawn first
+    planetsRef.current.sort((a, b) => a.depth - b.depth);
+    planetsRef.current.forEach((p, idx) => {
+      // Assign each planet an orbit center and radius
+      const centerIdx = idx % ORBIT_CENTERS.length;
+      const orbitCenter = ORBIT_CENTERS[centerIdx];
+      const orbitRadius = ORBIT_RADII[idx % ORBIT_RADII.length] * Math.min(w, h);
+      // Calculate orbit angle
+    p.orbitAngle = (p.orbitAngle ?? rand(0, Math.PI * 2)) + (0.0003 + 0.0002 * (idx + 1));
+      p.x = w * orbitCenter.x + Math.cos(p.orbitAngle) * orbitRadius;
+      p.y = h * orbitCenter.y + Math.sin(p.orbitAngle) * orbitRadius;
+      // Rotate planet
+      p.spin += p.spinSpeed * 0.25 + 0.002;
       ctx.save();
-      ctx.scale(1, 0.3); // Flatten the disk
+      ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.spin);
+      if (p.depth < 0.4) {
+        ctx.filter = 'blur(2.5px)';
+      } else if (p.depth < 0.7) {
+        ctx.filter = 'blur(1.2px)';
+      } else {
+        ctx.filter = 'none';
+      }
+      if (p.texture) {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.r, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(p.texture, -p.r, -p.r, p.r * 2, p.r * 2);
+      } else {
+        const g = ctx.createRadialGradient(-p.r * 0.4, -p.r * 0.4, p.r * 0.2, 0, 0, p.r * 1.2);
+        g.addColorStop(0, hsla(p.hue, 60, 70, p.alpha));
+        g.addColorStop(0.5, hsla(p.hue, 70, 50, p.alpha * 0.9));
+        g.addColorStop(1, hsla(p.hue, 80, 30, p.alpha * 0.6));
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(0, 0, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    });
+  };
+
+  // Draw cosmic clouds (nebula/fog) - static
+  let staticClouds: {cx:number,cy:number,r:number,rot:number,grad:CanvasGradient,ellipseY:number,alpha:number}[] = [];
+  const generateStaticClouds = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+    staticClouds = [];
+    for (let i = 0; i < 4; i++) {
+      const cx = rand(w * 0.2, w * 0.8);
+      const cy = rand(h * 0.2, h * 0.8);
+      const r = rand(180, 420);
+      const rot = rand(0, Math.PI * 2);
+      const ellipseY = r * rand(0.5, 1.2);
+      const alpha = rand(0.08, 0.18);
+      const grad = ctx.createRadialGradient(0, 0, r * 0.2, 0, 0, r);
+      grad.addColorStop(0, 'rgba(30,30,40,0.7)');
+      grad.addColorStop(0.5, 'rgba(20,20,30,0.3)');
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      staticClouds.push({cx,cy,r,rot,grad,ellipseY,alpha});
+    }
+  };
+  const drawCosmicClouds = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+    staticClouds.forEach(cloud => {
+      ctx.save();
+      ctx.globalAlpha = cloud.alpha;
+      ctx.translate(cloud.cx, cloud.cy);
+      ctx.rotate(cloud.rot);
       ctx.beginPath();
-      ctx.arc(0, 0, outerR, 0, Math.PI * 2);
-      ctx.arc(0, 0, innerR, 0, Math.PI * 2, true);
+      ctx.ellipse(0, 0, cloud.r, cloud.ellipseY, 0, 0, Math.PI * 2);
+      ctx.fillStyle = cloud.grad;
       ctx.fill();
       ctx.restore();
-    }
-    
-    ctx.restore();
-
-    // Draw photon sphere (gravitational lensing effect)
-    const lensGrad = ctx.createRadialGradient(0, 0, bh.photonSphereR * 0.9, 0, 0, bh.photonSphereR * 1.1);
-    lensGrad.addColorStop(0, 'rgba(255,255,255,0)');
-    lensGrad.addColorStop(0.5, 'rgba(255,255,255,0.1)');
-    lensGrad.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = lensGrad;
-    ctx.beginPath();
-    ctx.arc(0, 0, bh.photonSphereR, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Draw event horizon (pure black)
-    ctx.fillStyle = 'rgba(0,0,0,1)';
-    ctx.beginPath();
-    ctx.arc(0, 0, bh.eventHorizonR, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Add subtle rim lighting
-    ctx.strokeStyle = 'rgba(255,200,100,0.3)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(0, 0, bh.eventHorizonR + 1, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.restore();
+    });
   };
 
   const drawBackground = () => {
@@ -452,12 +378,65 @@ const ShootingStars: React.FC = () => {
     });
     ctx.restore();
 
+    // Draw cosmic clouds
+    drawCosmicClouds(ctx, w, h);
+
     // Draw planets
     drawPlanets(ctx, w, h);
-    
-    // Draw realistic black hole
-    drawRealisticBlackHole(ctx);
+    drawDepthPlanets(ctx, w, h);
   };
+
+  // Draw shooting stars behind planets
+  const drawShootingStarsBehindPlanets = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+    shootingStarsRef.current.forEach((star) => {
+      // Only draw stars flagged as 'behind'
+      if (star.behind) {
+        ctx.save();
+        ctx.globalAlpha = star.alpha;
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = star.size;
+        ctx.beginPath();
+        ctx.moveTo(star.x, star.y);
+        ctx.lineTo(star.x - star.vx * 12, star.y - star.vy * 12);
+        ctx.stroke();
+        ctx.restore();
+      }
+    });
+  };
+
+  // Draw shooting stars in front of planets
+  const drawShootingStarsInFrontOfPlanets = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+    shootingStarsRef.current.forEach((star) => {
+      if (!star.behind) {
+        ctx.save();
+        ctx.globalAlpha = star.alpha;
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = star.size;
+        ctx.beginPath();
+        ctx.moveTo(star.x, star.y);
+        ctx.lineTo(star.x - star.vx * 12, star.y - star.vy * 12);
+        ctx.stroke();
+        ctx.restore();
+      }
+    });
+  };
+
+  // When seeding shooting stars, randomly assign some to be 'behind'
+  function seedShootingStars(count: number, w: number, h: number) {
+    const arr = [];
+    for (let i = 0; i < count; ++i) {
+      arr.push({
+        x: rand(0, w),
+        y: rand(0, h),
+        vx: rand(-2, 2),
+        vy: rand(-2, 2),
+        alpha: rand(0.5, 1),
+        size: rand(1, 2.5),
+        behind: Math.random() < 0.4, // 40% go behind planets
+      });
+    }
+    return arr;
+  }
 
   const makeShooter = (): Shooter | null => {
     const w = fgRef.current?.clientWidth || 0;
@@ -568,12 +547,16 @@ const ShootingStars: React.FC = () => {
       resizeBoth();
       window.addEventListener('resize', resizeBoth);
 
-      await loadTextures();
+      await loadAllTextures();
       
       seedStarfield();
       seedNebulas();
       seedPlanets();
-      seedBlackHole();
+      const w = bgRef.current?.clientWidth || 0;
+      const h = bgRef.current?.clientHeight || 0;
+      if (bgCtxRef.current && w && h) {
+        generateStaticClouds(bgCtxRef.current, w, h);
+      }
 
       drawBackground();
       bgTimerRef.current = window.setInterval(drawBackground, 50);
