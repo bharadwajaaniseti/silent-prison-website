@@ -1,7 +1,7 @@
 // API endpoints for character management
 const API_BASE = `${import.meta.env.VITE_API_URL}/api`;
 
-export const apiFetchCharacters = async () => {
+export const apiFetchCharacters = async (): Promise<any[]> => {
   try {
     const response = await fetch(`${API_BASE}/characters`);
     if (response.ok) {
@@ -15,7 +15,7 @@ export const apiFetchCharacters = async () => {
   }
 };
 
-export const apiAddCharacter = async (character) => {
+export const apiAddCharacter = async (character: any): Promise<any> => {
   try {
     const response = await fetch(`${API_BASE}/characters`, {
       method: 'POST',
@@ -31,7 +31,7 @@ export const apiAddCharacter = async (character) => {
   }
 };
 
-export const apiDeleteCharacter = async (id: string) => {
+export const apiDeleteCharacter = async (id: string): Promise<boolean> => {
   try {
     const response = await fetch(`${API_BASE}/characters/${id}`, {
       method: 'DELETE'
@@ -44,7 +44,7 @@ export const apiDeleteCharacter = async (id: string) => {
   }
 };
 
-export const apiUpdateCharacter = async (id: string, updates: any) => {
+export const apiUpdateCharacter = async (id: string, updates: any): Promise<any> => {
   try {
     const response = await fetch(`${API_BASE}/characters/${id}`, {
       method: 'PUT',

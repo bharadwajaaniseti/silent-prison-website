@@ -7,7 +7,7 @@ import ChapterReader from './components/ChapterReader';
 import ChaptersPage from './components/ChaptersPage';
 import LoreArchive from './components/LoreArchive';
 import CharacterHub from './components/CharacterHub';
-import InteractiveMap from './components/InteractiveMap';
+import MapPage from './components/MapPage';
 import Timeline from './components/Timeline';
 import LoadingScreen from './components/LoadingScreen';
 import Navigation from './components/Navigation';
@@ -69,7 +69,7 @@ function App() {
       case "characters":
         return <CharacterHub />;
       case "map":
-        return <InteractiveMap />;
+        return <MapPage />;
       case "timeline":
         return <Timeline />;
       case "admin":

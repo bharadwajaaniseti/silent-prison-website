@@ -26,7 +26,9 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());
+// Increase payload size limit for image uploads
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 /* ---------- Supabase ---------- */
 const supabase = createClient(
@@ -172,22 +174,28 @@ app.get('/api/stats', async (_req, res) => {
       .from('chapters')
       .select('*', { count: 'exact', head: true });
 
+    // Get lore entries count from database
+    const { count: totalLore } = await supabase
+      .from('lore_entries')
+      .select('*', { count: 'exact', head: true });
+
     // memberCount: count users with role='member'
     const { count: memberCount } = await supabase
       .from('users_app')
       .select('*', { count: 'exact', head: true })
       .eq('role', 'member');
 
-    res.json({
-      stats: {
-        totalViews: totalViews || 0,
-        dailyViews: Math.floor((totalViews || 0) * 0.08),
-        totalUsers: totalUsers ?? 0,
-        totalChapters: totalChapters ?? 0,
-        totalLore: 0,        // still localStorage on the frontend
-        memberCount: memberCount ?? 0
-      }
-    });
+    const stats = {
+      totalViews: totalViews || 0,
+      dailyViews: Math.floor((totalViews || 0) * 0.08),
+      totalUsers: totalUsers ?? 0,
+      totalChapters: totalChapters ?? 0,
+      totalLore: totalLore ?? 0,
+      memberCount: memberCount ?? 0
+    };
+
+    console.log('Computed stats:', stats);
+    res.json({ stats });
   } catch (e) {
     console.error('GET /api/stats:', e);
     res.status(500).json({ error: 'Failed to compute stats' });
@@ -331,8 +339,7 @@ app.put('/api/users/profile', async (req, res) => {
   }
 });
 
-/* ---------- Start ---------- */
-app.listen(PORT, () => {
+/* ---------- API Routes ---------- */
 // API routes for all sections
 // Place DELETE and PUT routes before catch-all routes for correct matching
 app.delete('/api/lore-entries/:id', (req, res) => {
@@ -374,6 +381,9 @@ app.put('/api/timeline-events/:id', (req, res) => {
   timelineEventsHandler(req, res);
 });
 app.all('/api/timeline-events', (req, res) => timelineEventsHandler(req, res));
+
+/* ---------- Start ---------- */
+app.listen(PORT, () => {
   console.log(`API running on http://localhost:${PORT}`);
 });
 

@@ -12,7 +12,8 @@ import {
   Calendar,
   Activity,
   Save,
-  X
+  X,
+  AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { LoreEntry, SiteStats } from '../types/auth';
@@ -26,6 +27,7 @@ import {
 } from '../utils/chaptersStorage';
 import { fetchSiteStats, fetchRecentActivity } from '../api/stats';
 import { apiFetchLoreEntries, apiAddLoreEntry, apiDeleteLoreEntry, apiUpdateLoreEntry } from '../api/lore-entries';
+import { safeLocalStorage } from '../utils/apiUtils';
 import CharacterAdmin from './CharacterAdmin';
 import MapAdmin from './MapAdmin';
 import TimelineAdmin from './TimelineAdmin';
@@ -49,6 +51,8 @@ const AdminDashboard: React.FC = () => {
   const [showLoreForm, setShowLoreForm] = useState(false);
   const [editingChapter, setEditingChapter] = useState<Chapter | null>(null);
   const [editingLore, setEditingLore] = useState<LoreEntry | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isLoadingLore, setIsLoadingLore] = useState(true);
 
 
@@ -56,6 +60,7 @@ const AdminDashboard: React.FC = () => {
     const loadData = async () => {
       try {
         setIsLoadingStats(true);
+        setIsLoadingLore(true);
         
         // Migrate from localStorage if needed
         await migrateFromLocalStorage();
@@ -64,9 +69,10 @@ const AdminDashboard: React.FC = () => {
         const loadedChapters = await fetchChapters();
         setChapters(loadedChapters);
         
-        // Load lore entries from localStorage (keeping this for now)
-        const savedLore = JSON.parse(localStorage.getItem('loreEntries') || '[]');
-        setLoreEntries(savedLore);
+        // Load lore entries from API (with localStorage fallback)
+        const loreData = await apiFetchLoreEntries();
+        setLoreEntries(loreData);
+        setIsLoadingLore(false);
         
         // Fetch live site statistics
         const liveStats = await fetchSiteStats();
@@ -78,13 +84,17 @@ const AdminDashboard: React.FC = () => {
         
       } catch (error) {
         console.error('Error loading data:', error);
+        setError('Failed to load some data. Using cached data where available.');
+        
         // Fallback to basic stats if live data fails
-        const savedLore = JSON.parse(localStorage.getItem('loreEntries') || '[]');
         const loadedChapters = await fetchChapters().catch(() => []);
+        const fallbackLore = safeLocalStorage.getItem('loreEntries', []);
+        setLoreEntries(fallbackLore);
+        setIsLoadingLore(false);
         setStats(prev => ({
           ...prev,
           totalChapters: loadedChapters.length,
-          totalLore: savedLore.length
+          totalLore: fallbackLore.length
         }));
       } finally {
         setIsLoadingStats(false);
@@ -96,16 +106,11 @@ const AdminDashboard: React.FC = () => {
 
   // Remove old saveChapters function - now handled by storage utils
 
-  const saveLoreEntries = (newLore: LoreEntry[]) => {
-    localStorage.setItem('loreEntries', JSON.stringify(newLore));
-    setLoreEntries(newLore);
-    setStats(prev => ({ ...prev, totalLore: newLore.length }));
-  };
-
 
 
   const handleChapterSubmit = async (chapterData: Partial<Chapter>) => {
     try {
+      setError(null);
       if (editingChapter) {
         // Update existing chapter
         const updatedChapter = await updateChapter(editingChapter.id, chapterData);
@@ -115,6 +120,7 @@ const AdminDashboard: React.FC = () => {
           );
           setChapters(updatedChapters);
           setStats(prev => ({ ...prev, totalChapters: updatedChapters.length }));
+          setSuccess('Chapter updated successfully!');
         }
         setEditingChapter(null);
       } else {
@@ -129,16 +135,18 @@ const AdminDashboard: React.FC = () => {
         const updatedChapters = [...chapters, newChapter];
         setChapters(updatedChapters);
         setStats(prev => ({ ...prev, totalChapters: updatedChapters.length }));
+        setSuccess('Chapter created successfully!');
       }
       setShowChapterForm(false);
     } catch (error) {
       console.error('Error saving chapter:', error);
-      alert('Error saving chapter. Please try again.');
+      setError('Failed to save chapter. Please try again.');
     }
   };
 
   const handleLoreSubmit = async (loreData: Partial<LoreEntry>) => {
     try {
+      setError(null);
       const newLore = await apiAddLoreEntry({
         ...loreData,
         tags: Array.isArray(loreData.tags) ? loreData.tags : (loreData.tags || '').split(',').map((t: string) => t.trim()).filter((t: string) => t),
@@ -147,14 +155,25 @@ const AdminDashboard: React.FC = () => {
       });
       setLoreEntries(prev => [...prev, newLore]);
       setShowLoreForm(false);
+      setSuccess('Lore entry created successfully!');
+      
+      // Refresh stats
+      try {
+        const updatedStats = await fetchSiteStats();
+        setStats(updatedStats);
+      } catch (error) {
+        console.error('Error refreshing stats:', error);
+      }
     } catch (error) {
-      alert('Error saving lore entry. Please try again.');
+      console.error('Error saving lore entry:', error);
+      setError('Failed to save lore entry. Please try again.');
     }
   };
 
   const handleLoreEdit = async (loreData: Partial<LoreEntry>) => {
     if (!editingLore) return;
     try {
+      setError(null);
       const updatedLore = await apiUpdateLoreEntry(editingLore.id, {
         ...loreData,
         tags: Array.isArray(loreData.tags) ? loreData.tags : (loreData.tags || '').split(',').map((t: string) => t.trim()).filter((t: string) => t),
@@ -162,14 +181,17 @@ const AdminDashboard: React.FC = () => {
       setLoreEntries(prev => prev.map(entry => entry.id === editingLore.id ? updatedLore : entry));
       setEditingLore(null);
       setShowLoreForm(false);
+      setSuccess('Lore entry updated successfully!');
     } catch (error) {
-      alert('Error updating lore entry. Please try again.');
+      console.error('Error updating lore entry:', error);
+      setError('Failed to update lore entry. Please try again.');
     }
   };
 
   const handleDeleteChapter = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this chapter? This action cannot be undone.')) {
       try {
+        setError(null);
         const success = await deleteChapter(id);
         if (success) {
           const updatedChapters = chapters.filter(chapter => chapter.id !== id);
@@ -178,12 +200,13 @@ const AdminDashboard: React.FC = () => {
             ...prev,
             totalChapters: updatedChapters.length
           }));
+          setSuccess('Chapter deleted successfully!');
         } else {
-          alert('Chapter not found or could not be deleted.');
+          setError('Chapter not found or could not be deleted.');
         }
       } catch (error) {
         console.error('Error deleting chapter:', error);
-        alert('Error deleting chapter. Please try again.');
+        setError('Failed to delete chapter. Please try again.');
       }
     }
   };
@@ -195,24 +218,27 @@ const AdminDashboard: React.FC = () => {
 
   const deleteLore = async (id: string) => {
     try {
+      setError(null);
       const success = await apiDeleteLoreEntry(id);
       if (success) {
         setLoreEntries(prev => prev.filter(entry => entry.id !== id));
+        setSuccess('Lore entry deleted successfully!');
+        
+        // Refresh stats
+        try {
+          const updatedStats = await fetchSiteStats();
+          setStats(updatedStats);
+        } catch (error) {
+          console.error('Error refreshing stats:', error);
+        }
       } else {
-        alert('Failed to delete lore entry.');
+        setError('Failed to delete lore entry.');
       }
-    } catch {
-      alert('Error deleting lore entry.');
+    } catch (error) {
+      console.error('Error deleting lore entry:', error);
+      setError('Failed to delete lore entry. Please try again.');
     }
   };
-
-  useEffect(() => {
-    setIsLoadingLore(true);
-    apiFetchLoreEntries().then(entries => {
-      setLoreEntries(entries);
-      setIsLoadingLore(false);
-    });
-  }, []);
 
   if (user?.role !== 'admin') {
     return (
@@ -246,6 +272,35 @@ const AdminDashboard: React.FC = () => {
           </h1>
           <p className="text-gray-400 text-sm md:text-base">Welcome back, {user?.username}</p>
         </div>
+
+        {/* Error/Success Notifications */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-900/30 border border-red-500 rounded-lg flex items-center space-x-2">
+            <AlertCircle className="text-red-400" size={20} />
+            <span className="text-red-200">{error}</span>
+            <button 
+              onClick={() => setError(null)}
+              className="ml-auto text-red-400 hover:text-red-300"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+        
+        {success && (
+          <div className="mb-6 p-4 bg-green-900/30 border border-green-500 rounded-lg flex items-center space-x-2">
+            <div className="w-5 h-5 rounded-full bg-green-400 flex items-center justify-center">
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+            </div>
+            <span className="text-green-200">{success}</span>
+            <button 
+              onClick={() => setSuccess(null)}
+              className="ml-auto text-green-400 hover:text-green-300"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex flex-wrap sm:flex-nowrap gap-1 mb-6 md:mb-8 bg-gray-800 p-1 rounded-lg overflow-x-auto">
@@ -490,50 +545,82 @@ const AdminDashboard: React.FC = () => {
             </div>
 
             <div className="grid gap-6">
-              {loreEntries.map(entry => (
-                <div key={entry.id} className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="font-orbitron text-xl font-bold text-blue-300">{entry.title}</h3>
-                      <p className="text-gray-400 text-sm">{entry.category}</p>
+              {isLoadingLore ? (
+                <div className="space-y-6">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-gray-800 rounded-xl p-6 border border-gray-700 animate-pulse">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <div className="h-6 bg-gray-600 rounded w-48 mb-2"></div>
+                          <div className="h-4 bg-gray-600 rounded w-24"></div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <div className="w-8 h-8 bg-gray-600 rounded"></div>
+                          <div className="w-8 h-8 bg-gray-600 rounded"></div>
+                        </div>
+                      </div>
+                      <div className="h-4 bg-gray-600 rounded w-full mb-2"></div>
+                      <div className="h-4 bg-gray-600 rounded w-3/4 mb-4"></div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex space-x-2">
+                          <div className="h-6 bg-gray-600 rounded w-16"></div>
+                          <div className="h-6 bg-gray-600 rounded w-20"></div>
+                        </div>
+                        <div className="h-6 bg-gray-600 rounded w-20"></div>
+                      </div>
                     </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => {
-                          setEditingLore(entry);
-                          setShowLoreForm(true);
-                        }}
-                        className="p-2 text-blue-400 hover:bg-blue-400/20 rounded-lg transition-colors"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => deleteLore(entry.id)}
-                        className="p-2 text-red-400 hover:bg-red-400/20 rounded-lg transition-colors"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-gray-300 mb-4">{entry.summary}</p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-wrap gap-2">
-                      {entry.tags.map(tag => (
-                        <span key={tag} className="px-2 py-1 bg-blue-600/20 text-blue-400 text-xs rounded-full">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      entry.isPublished 
-                        ? 'bg-green-600 text-green-100' 
-                        : 'bg-gray-600 text-gray-100'
-                    }`}>
-                      {entry.isPublished ? 'Published' : 'Draft'}
-                    </span>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              ) : loreEntries.length > 0 ? (
+                loreEntries.map(entry => (
+                  <div key={entry.id} className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="font-orbitron text-xl font-bold text-blue-300">{entry.title}</h3>
+                        <p className="text-gray-400 text-sm">{entry.category}</p>
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => {
+                            setEditingLore(entry);
+                            setShowLoreForm(true);
+                          }}
+                          className="p-2 text-blue-400 hover:bg-blue-400/20 rounded-lg transition-colors"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          onClick={() => deleteLore(entry.id)}
+                          className="p-2 text-red-400 hover:bg-red-400/20 rounded-lg transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-gray-300 mb-4">{entry.summary}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap gap-2">
+                        {entry.tags.map(tag => (
+                          <span key={tag} className="px-2 py-1 bg-blue-600/20 text-blue-400 text-xs rounded-full">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        entry.isPublished 
+                          ? 'bg-green-600 text-green-100' 
+                          : 'bg-gray-600 text-gray-100'
+                      }`}>
+                        {entry.isPublished ? 'Published' : 'Draft'}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 text-center">
+                  <p className="text-gray-400">No lore entries found. Create your first entry to get started!</p>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import InteractiveMap from './InteractiveMap';
+import DynamicInteractiveMap from './DynamicInteractiveMap';
 import { apiFetchRegions, apiAddRegion, apiDeleteRegion, apiUpdateRegion } from '../api/regions';
 import { X, Save } from 'lucide-react';
 
@@ -13,18 +13,16 @@ export interface Region {
   keyLocations: string[];
   population: string;
   threat: string;
+  connections?: string[];
 }
-
-const initialRegions: Region[] = [
-  // ...copy from InteractiveMap or load from storage/api...
-];
 
 // Modal form for adding/editing a region
 const RegionForm: React.FC<{
   region?: any;
+  regions: any[];
   onSubmit: (data: any) => void;
   onClose: () => void;
-}> = ({ region, onSubmit, onClose }) => {
+}> = ({ region, regions, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
     name: region?.name || '',
     subtitle: region?.subtitle || '',
@@ -35,6 +33,7 @@ const RegionForm: React.FC<{
     keyLocations: region?.keyLocations?.join(', ') || '',
     population: region?.population || '',
     threat: region?.threat || '',
+    connections: region?.connections || [],
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,6 +44,18 @@ const RegionForm: React.FC<{
       keyLocations: formData.keyLocations.split(',').map((k: string) => k.trim()).filter((k: string): boolean => !!k),
     });
   };
+
+  const handleConnectionToggle = (regionId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      connections: prev.connections.includes(regionId)
+        ? prev.connections.filter((id: string) => id !== regionId)
+        : [...prev.connections, regionId]
+    }));
+  };
+
+  // Get available regions for connections (exclude current region being edited)
+  const availableRegions = regions.filter(r => r.id !== region?.id);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -59,48 +70,138 @@ const RegionForm: React.FC<{
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
-              <input type="text" value={formData.name} onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" required />
+              <input 
+                type="text" 
+                value={formData.name} 
+                onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))} 
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" 
+                required 
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Subtitle</label>
-              <input type="text" value={formData.subtitle} onChange={e => setFormData(prev => ({ ...prev, subtitle: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" />
+              <input 
+                type="text" 
+                value={formData.subtitle} 
+                onChange={e => setFormData(prev => ({ ...prev, subtitle: e.target.value }))} 
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" 
+              />
             </div>
           </div>
+          
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Position X</label>
-              <input type="number" value={formData.positionX} onChange={e => setFormData(prev => ({ ...prev, positionX: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" />
+              <label className="block text-sm font-medium text-gray-300 mb-2">Position X (0-100)</label>
+              <input 
+                type="number" 
+                min="0" 
+                max="100" 
+                value={formData.positionX} 
+                onChange={e => setFormData(prev => ({ ...prev, positionX: e.target.value }))} 
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" 
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Position Y</label>
-              <input type="number" value={formData.positionY} onChange={e => setFormData(prev => ({ ...prev, positionY: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" />
+              <label className="block text-sm font-medium text-gray-300 mb-2">Position Y (0-100)</label>
+              <input 
+                type="number" 
+                min="0" 
+                max="100" 
+                value={formData.positionY} 
+                onChange={e => setFormData(prev => ({ ...prev, positionY: e.target.value }))} 
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" 
+              />
             </div>
           </div>
+          
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Color (Tailwind gradient e.g. from-blue-500 to-blue-600)</label>
-            <input type="text" value={formData.color} onChange={e => setFormData(prev => ({ ...prev, color: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" />
+            <input 
+              type="text" 
+              value={formData.color} 
+              onChange={e => setFormData(prev => ({ ...prev, color: e.target.value }))} 
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" 
+            />
           </div>
+          
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
-            <textarea value={formData.description} onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 h-32" />
+            <textarea 
+              value={formData.description} 
+              onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))} 
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 h-32" 
+            />
           </div>
+          
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Key Locations (comma separated)</label>
-            <input type="text" value={formData.keyLocations} onChange={e => setFormData(prev => ({ ...prev, keyLocations: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" />
+            <input 
+              type="text" 
+              value={formData.keyLocations} 
+              onChange={e => setFormData(prev => ({ ...prev, keyLocations: e.target.value }))} 
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" 
+            />
           </div>
+          
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Population</label>
-              <input type="text" value={formData.population} onChange={e => setFormData(prev => ({ ...prev, population: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" />
+              <input 
+                type="text" 
+                value={formData.population} 
+                onChange={e => setFormData(prev => ({ ...prev, population: e.target.value }))} 
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" 
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Threat</label>
-              <input type="text" value={formData.threat} onChange={e => setFormData(prev => ({ ...prev, threat: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" />
+              <input 
+                type="text" 
+                value={formData.threat} 
+                onChange={e => setFormData(prev => ({ ...prev, threat: e.target.value }))} 
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" 
+              />
             </div>
           </div>
+
+          {/* Region Connections Section */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Connected Regions</label>
+            <div className="bg-gray-700 rounded-lg p-4 space-y-2">
+              {availableRegions.length > 0 ? (
+                availableRegions.map((availableRegion) => (
+                  <label key={availableRegion.id} className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.connections.includes(availableRegion.id)}
+                      onChange={() => handleConnectionToggle(availableRegion.id)}
+                      className="w-4 h-4 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-gray-300">{availableRegion.name}</span>
+                    <span className="text-gray-500 text-sm">({availableRegion.subtitle})</span>
+                  </label>
+                ))
+              ) : (
+                <p className="text-gray-400 text-sm">No other regions available for connections</p>
+              )}
+              {formData.connections.length === 0 && (
+                <p className="text-yellow-400 text-sm mt-2">⚠️ This region will appear as unconnected</p>
+              )}
+            </div>
+          </div>
+          
           <div className="flex justify-end space-x-4 pt-4">
-            <button type="button" onClick={onClose} className="px-6 py-3 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors">Cancel</button>
-            <button type="submit" className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg transition-colors">
+            <button 
+              type="button" 
+              onClick={onClose} 
+              className="px-6 py-3 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg transition-colors"
+            >
               <Save size={18} />
               <span>{region ? 'Update' : 'Create'} Region</span>
             </button>
@@ -127,17 +228,15 @@ const MapAdmin: React.FC = () => {
     setRegions([...regions, newRegion]);
     setShowForm(false);
   };
+
   const handleEdit = async (regionData: any) => {
     if (!editingRegion) return;
-    const updatedRegion = await apiUpdateRegion(editingRegion.id, {
-      ...regionData,
-      position: { x: Number(regionData.positionX), y: Number(regionData.positionY) },
-      keyLocations: regionData.keyLocations.split(',').map((k: string) => k.trim()).filter((k: string) => k),
-    });
+    const updatedRegion = await apiUpdateRegion(editingRegion.id, regionData);
     setRegions(prev => prev.map(r => r.id === editingRegion.id ? updatedRegion : r));
     setEditingRegion(null);
     setShowForm(false);
   };
+
   const handleRemove = async (id: string) => {
     const success = await apiDeleteRegion(id);
     if (success) setRegions(prev => prev.filter(r => r.id !== id));
@@ -145,24 +244,57 @@ const MapAdmin: React.FC = () => {
 
   return (
     <div>
-      <button onClick={() => { setEditingRegion(null); setShowForm(true); }} className="bg-blue-600 text-white px-4 py-2 rounded mb-4">Add Region</button>
+      <div className="mb-4">
+        <button 
+          onClick={() => { setEditingRegion(null); setShowForm(true); }} 
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+        >
+          Add New Region
+        </button>
+      </div>
+
       {showForm && (
         <RegionForm
           region={editingRegion}
+          regions={regions}
           onSubmit={editingRegion ? handleEdit : handleAdd}
           onClose={() => { setShowForm(false); setEditingRegion(null); }}
         />
       )}
-      <InteractiveMap regions={regions} />
-      <ul className="mt-4">
-        {regions.map(region => (
-          <li key={region.id} className="flex items-center gap-2 mb-2">
-            <span>{region.name}</span>
-            <button onClick={() => { setEditingRegion(region); setShowForm(true); }} className="text-blue-400">Edit</button>
-            <button onClick={() => handleRemove(region.id)} className="text-red-400">Remove</button>
-          </li>
-        ))}
-      </ul>
+      
+      <DynamicInteractiveMap regions={regions} />
+      
+      <div className="mt-6">
+        <h3 className="text-xl font-bold text-white mb-4">Manage Regions</h3>
+        <div className="grid gap-4">
+          {regions.map(region => (
+            <div key={region.id} className="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
+              <div>
+                <h4 className="text-white font-semibold">{region.name}</h4>
+                <p className="text-gray-300 text-sm">{region.subtitle}</p>
+                <p className="text-gray-400 text-xs">
+                  Connections: {region.connections?.length || 0} 
+                  {region.connections?.length > 0 && ` (${region.connections.map((id: string) => regions.find(r => r.id === id)?.name).filter(Boolean).join(', ')})`}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => { setEditingRegion(region); setShowForm(true); }} 
+                  className="text-blue-400 hover:text-blue-300 px-3 py-1 rounded"
+                >
+                  Edit
+                </button>
+                <button 
+                  onClick={() => handleRemove(region.id)} 
+                  className="text-red-400 hover:text-red-300 px-3 py-1 rounded"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
