@@ -188,38 +188,19 @@ const MapPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-slate-900 pl-16">
-      {/* Header */}
-      <div className="relative z-10 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="font-orbitron text-4xl md:text-6xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Regional Network
-              </span>
-            </h1>
-            <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-              Explore the interconnected regions of the Silent Prison universe. Click on any region to discover its secrets, connections, and strategic importance.
-            </p>
-          </div>
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-slate-900 pl-16">
+        <div className="relative h-[80vh] w-full">
+          <EnhancedDynamicMap 
+            regions={regions}
+            onRegionSelect={setSelectedRegion}
+          />
+          <RegionInfoPanel 
+            region={selectedRegion}
+            onClose={() => setSelectedRegion(null)}
+            allRegions={regions}
+          />
         </div>
       </div>
-
-      {/* Map Container */}
-      <div className="relative h-[80vh] w-full">
-        <EnhancedDynamicMap 
-          regions={regions}
-          onRegionSelect={setSelectedRegion}
-        />
-        
-        {/* Region Information Panel */}
-        <RegionInfoPanel 
-          region={selectedRegion}
-          onClose={() => setSelectedRegion(null)}
-          allRegions={regions}
-        />
-      </div>
-    </div>
   );
 };
 

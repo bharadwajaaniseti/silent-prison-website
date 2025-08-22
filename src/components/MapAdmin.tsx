@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { uploadImage } from '../utils/imageUpload';
 import DynamicInteractiveMap from './DynamicInteractiveMap';
 import { apiFetchRegions, apiAddRegion, apiDeleteRegion, apiUpdateRegion } from '../api/regions';
 import { X, Save } from 'lucide-react';
@@ -14,6 +15,7 @@ export interface Region {
   population: string;
   threat: string;
   connections?: string[];
+  imageUrl?: string; // New: region icon/image
 }
 
 // Modal form for adding/editing a region
@@ -34,7 +36,11 @@ const RegionForm: React.FC<{
     population: region?.population || '',
     threat: region?.threat || '',
     connections: region?.connections || [],
+    region_icon: region?.region_icon || '', // Supabase Storage URL
   });
+
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,9 +48,9 @@ const RegionForm: React.FC<{
       ...formData,
       position: { x: Number(formData.positionX), y: Number(formData.positionY) },
       keyLocations: formData.keyLocations.split(',').map((k: string) => k.trim()).filter((k: string): boolean => !!k),
+      region_icon: formData.region_icon,
     });
   };
-
   const handleConnectionToggle = (regionId: string) => {
     setFormData(prev => ({
       ...prev,
@@ -57,8 +63,9 @@ const RegionForm: React.FC<{
   // Get available regions for connections (exclude current region being edited)
   const availableRegions = regions.filter(r => r.id !== region?.id);
 
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
       <div className="bg-gray-800 rounded-xl border border-gray-700 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-700">
           <h2 className="font-orbitron text-2xl font-bold text-blue-300">{region ? 'Edit' : 'Add New'} Region</h2>
@@ -87,6 +94,35 @@ const RegionForm: React.FC<{
                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" 
               />
             </div>
+          </div>
+          {/* Image Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Region Icon/Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={async e => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setUploading(true);
+                  setUploadError(null);
+                  const result = await uploadImage(file, 'region-icons');
+                  setUploading(false);
+                  if (result.success && result.url) {
+                    setFormData(prev => ({ ...prev, region_icon: result.url }));
+                  } else {
+                    setUploadError(result.error || 'Upload failed');
+                  }
+                }
+              }}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+              disabled={uploading}
+            />
+            {uploading && <div className="text-blue-400 mt-2">Uploading...</div>}
+            {uploadError && <div className="text-red-400 mt-2">{uploadError}</div>}
+            {formData.region_icon && (
+              <img src={formData.region_icon} alt="Region Icon Preview" className="mt-2 w-24 h-24 object-contain rounded-lg border border-gray-600" />
+            )}
           </div>
           
           <div className="grid md:grid-cols-2 gap-4">
