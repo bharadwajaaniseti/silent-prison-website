@@ -1,220 +1,575 @@
 [
   {
-    "name": "Neo-Tokyo Central",
-    "subtitle": "Corporate Megacity",
-    "position": {
-      "x": 30,
-      "y": 40
-    },
-    "color": "from-cyan-400 via-blue-500 to-purple-600",
-    "description": "The heart of the corporate empire, where towering skyscrapers pierce the smog-filled sky and neon lights never sleep. This sprawling metropolis serves as the command center for the world's most powerful corporations, housing millions of workers in vertical cities that stretch toward the heavens.",
+    "name": "Askar",
+    "subtitle": "The Burning Wastes",
+    "position": { "x": 35, "y": 30},
+    "color": "from-red-600 via-orange-700 to-yellow-600",
+    "description": "A desert continent where Nightmare energy has crystallized into psionic glass formations and storm columns. Tribal lineages splintered into war-clans long ago; today the Crimson Wolves claim the dunes while Black Suns convoys strip relics and Lunaris shards from fallen caravans.",
     "keyLocations": [
-      "Corporate Plaza",
-      "Data Center Alpha",
-      "Skybridge Network",
-      "Underground Markets",
-      "Executive Towers",
-      "Transport Hub Central"
+      "The Glass Citadel",
+      "Crimson Dunes",
+      "The Howling Spires",
+      "Scorchwind Bazaar",
+      "Salt-Fall Canyon",
+      "The Furnace Road"
     ],
-    "population": "12.5M",
-    "threat": "High Security",
-    "connections": [],
+    "population": "~800,000",
+    "threat": "Extreme Nightmare Activity",
+    "connections": ["Duskar", "Rusava", "Industrial Zone 7", "Neo-Tokyo Central"],
     "imageUrl": "",
-    "visibility": {
-      "freeUsers": true,
-      "signedInUsers": true,
-      "premiumUsers": true
-    },
+    "visibility": { "freeUsers": true, "signedInUsers": true, "premiumUsers": true },
     "places": [
       {
-        "name": "Corporate Plaza",
+        "name": "The Glass Citadel",
         "type": "landmark",
-        "position": {
-          "x": -20,
-          "y": -30
-        },
+        "position": { "x": -18, "y": -22 },
         "size": "large",
         "importance": 5,
-        "description": "The central hub where all major corporate decisions are made. A massive complex of interconnected buildings reaching into the clouds.",
-        "connections": []
+        "description": "A psionic fortress grown from nightmare-crystal; its walls hum with echoes of thoughts and battle chants. Rumored Guardian relay hidden beneath.",
+        "connections": ["Scorchwind Bazaar"]
       },
       {
-        "name": "Data Center Alpha",
-        "type": "facility",
-        "position": {
-          "x": 25,
-          "y": -15
-        },
+        "name": "Crimson Dunes",
+        "type": "landmark",
+        "position": { "x": 14, "y": -4 },
         "size": "medium",
         "importance": 4,
-        "description": "The primary data processing center that handles all corporate communications and surveillance data.",
-        "connections": []
+        "description": "Scarlet iron-sand desert where the Crimson Wolves undertake blood-oath trials at moonset.",
+        "connections": ["The Furnace Road"]
       },
       {
-        "name": "Underground Markets",
+        "name": "The Howling Spires",
+        "type": "landmark",
+        "position": { "x": 32, "y": 18 },
+        "size": "medium",
+        "importance": 4,
+        "description": "Needle towers of resonant crystal that emit a ceaseless wail when high winds pass—navigational beacons and omens alike."
+      },
+      {
+        "name": "Scorchwind Bazaar",
         "type": "city",
-        "position": {
-          "x": -10,
-          "y": 35
-        },
+        "position": { "x": -6, "y": 28 },
+        "size": "medium",
+        "importance": 4,
+        "description": "A traveling market that circles the wastes with storm seasons; Ontwell brokers trade DME canisters and contraband relics."
+      },
+      {
+        "name": "Salt-Fall Canyon",
+        "type": "landmark",
+        "position": { "x": -34, "y": 6 },
+        "size": "small",
+        "importance": 3,
+        "description": "Wind-carved ravines ringed with salt cataracts where caravans vanish during white squalls."
+      },
+      {
+        "name": "The Furnace Road",
+        "type": "route",
+        "position": { "x": 10, "y": 34 },
+        "size": "small",
+        "importance": 3,
+        "description": "The only semi-stable highway across the wastes; Black Suns levy brutal tolls."
+      }
+    ]
+  },
+  {
+    "name": "Oris",
+    "subtitle": "The Frozen Mines",
+    "position": { "x": 78, "y": 18},
+    "color": "from-blue-400 via-cyan-600 to-indigo-700",
+    "description": "A glacial archipelago carved into industrial pits and shafts. Watchtowers ration heat and food while Tremor Units drill the Deep Veins for DME. Rumors speak of test labs hidden in the pristine summit facility above the soot-stained camps.",
+    "keyLocations": ["The Watchtower", "Gate Four", "Deep Veins", "Refinery Block C", "Lower Grid", "Icebreaker Docks"],
+    "population": "~1.2M",
+    "threat": "Harsh Environment",
+    "connections": ["Mistveil", "Neo-Tokyo Central", "Neo-Tokyo Outskirts"],
+    "imageUrl": "",
+    "visibility": { "freeUsers": true, "signedInUsers": true, "premiumUsers": true },
+    "places": [
+      {
+        "name": "The Watchtower",
+        "type": "facility",
+        "position": { "x": -12, "y": -24 },
+        "size": "large",
+        "importance": 5,
+        "description": "Administrative citadel that monitors quotas and metes out punishment. Sterile upper floors mask a research core."
+      },
+      {
+        "name": "Gate Four",
+        "type": "facility",
+        "position": { "x": 28, "y": 8 },
+        "size": "medium",
+        "importance": 4,
+        "description": "Primary descent to the Deep Veins; tremor sirens and frost fog mark each shift change."
+      },
+      {
+        "name": "Deep Veins",
+        "type": "landmark",
+        "position": { "x": 12, "y": 30 },
+        "size": "medium",
+        "importance": 4,
+        "description": "A labyrinth of DME-rich strata where Nightmares occasionally bore through from below."
+      },
+      {
+        "name": "Refinery Block C",
+        "type": "facility",
+        "position": { "x": -30, "y": 10 },
         "size": "medium",
         "importance": 3,
-        "description": "Hidden beneath the corporate towers, these markets trade in everything the corporations don't want you to have."
-      }
-    ]
-  },
-  {
-    "name": "Neo-Tokyo Outskirts",
-    "subtitle": "Abandoned Districts",
-    "position": {
-      "x": 65,
-      "y": 25
-    },
-    "color": "from-gray-600 via-red-500 to-orange-600",
-    "description": "Once thriving residential areas, now abandoned and left to decay after the corporate consolidation. These districts have become havens for rebels, outcasts, and those who refuse to bow to corporate rule. The streets are filled with makeshift shelters and underground networks.",
-    "keyLocations": [
-      "Rebel Hideout",
-      "Scrap Yards",
-      "Old Metro Tunnels",
-      "Forgotten Temples",
-      "Resistance Base",
-      "Black Market Hub"
-    ],
-    "population": "2.1M",
-    "threat": "Moderate Risk",
-    "connections": [],
-    "imageUrl": "",
-    "visibility": {
-      "freeUsers": true,
-      "signedInUsers": true,
-      "premiumUsers": true
-    },
-    "places": [
-      {
-        "name": "Rebel Hideout",
-        "type": "outpost",
-        "position": {
-          "x": -30,
-          "y": -20
-        },
-        "size": "small",
-        "importance": 4,
-        "description": "A secret base where the resistance plans their operations against corporate control.",
-        "connections": []
+        "description": "Converts raw crystal into canisters; frequent accidents hushed by security units."
       },
       {
-        "name": "Resistance Base",
-        "type": "facility",
-        "position": {
-          "x": 20,
-          "y": 25
-        },
+        "name": "Lower Grid",
+        "type": "district",
+        "position": { "x": -6, "y": 36 },
         "size": "medium",
-        "importance": 5,
-        "description": "The main headquarters of the anti-corporate resistance movement."
+        "importance": 3,
+        "description": "Squalid warrens where inmates nearing sentence end are ‘reassigned’ or disappear for trials."
+      },
+      {
+        "name": "Icebreaker Docks",
+        "type": "facility",
+        "position": { "x": 34, "y": -6 },
+        "size": "small",
+        "importance": 2,
+        "description": "Harbor for supply barges cutting through pack ice; smugglers pay Ontwell for manifests."
       }
     ]
   },
   {
-    "name": "Industrial Zone 7",
-    "subtitle": "Manufacturing Complex",
-    "position": {
-      "x": 15,
-      "y": 70
-    },
-    "color": "from-orange-500 via-yellow-500 to-red-600",
-    "description": "A massive industrial complex where automated factories work around the clock to produce goods for the corporate empire. The air is thick with chemical fumes and the constant hum of machinery echoes through the metal corridors. Workers live in cramped dormitories adjacent to the production lines.",
-    "keyLocations": [
-      "Factory Prime",
-      "Chemical Processing Plant",
-      "Worker Dormitories",
-      "Transport Hub",
-      "Quality Control Center",
-      "Waste Processing"
-    ],
-    "population": "850K",
-    "threat": "Environmental Hazard",
-    "connections": [],
+    "name": "Mistveil",
+    "subtitle": "The Hidden Shores",
+    "position": { "x": 50, "y": 30},
+    "color": "from-emerald-700 via-slate-700 to-black",
+    "description": "An isolated volcanic isle veiled by ash fog and magnetic storms. Beneath its collapsed caldera lie Architect-era vaults tied to Obsidian myths. The Guardians guard its charts; the Liberators would bleed the seas to reach it.",
+    "keyLocations": ["Obsidian Ruins", "Ashen Shores", "Collapsed Caldera", "Tide-Tomb Caves", "Windward Watch"],
+    "population": "~500,000 (pre-collapse)",
+    "threat": "Unknown Entities",
+    "connections": ["Oris", "Duskar", "Askar"],
     "imageUrl": "",
-    "visibility": {
-      "freeUsers": false,
-      "signedInUsers": true,
-      "premiumUsers": true
-    },
+    "visibility": { "freeUsers": true, "signedInUsers": true, "premiumUsers": true },
     "places": [
       {
-        "name": "Factory Prime",
-        "type": "facility",
-        "position": {
-          "x": 0,
-          "y": -25
-        },
+        "name": "Obsidian Ruins",
+        "type": "ruins",
+        "position": { "x": -18, "y": -14 },
+        "size": "medium",
+        "importance": 5,
+        "description": "Cyclopean vaults etched with tri-color sigils of Light, Dark, and Grey."
+      },
+      {
+        "name": "Ashen Shores",
+        "type": "landmark",
+        "position": { "x": 22, "y": 6 },
+        "size": "small",
+        "importance": 3,
+        "description": "Beaches dusted in black glass sand; wreckage of the exodus still litters the surf."
+      },
+      {
+        "name": "Collapsed Caldera",
+        "type": "landmark",
+        "position": { "x": 10, "y": 22 },
         "size": "large",
         "importance": 5,
-        "description": "The largest automated manufacturing facility in the zone, producing advanced technology components.",
-        "connections": []
+        "description": "The crater heart of Mistveil—now a flooded maw where strange lights bloom beneath the waves."
       },
       {
-        "name": "Chemical Processing Plant",
+        "name": "Tide-Tomb Caves",
+        "type": "ruins",
+        "position": { "x": -6, "y": 24 },
+        "size": "small",
+        "importance": 3,
+        "description": "Sea caves used by smugglers and refugees; murals tell of a moon that watched and wept."
+      },
+      {
+        "name": "Windward Watch",
+        "type": "outpost",
+        "position": { "x": 30, "y": -10 },
+        "size": "small",
+        "importance": 3,
+        "description": "A derelict lighthouse converted into a Guardian signal post."
+      }
+    ]
+  },
+  {
+    "name": "Duskar",
+    "subtitle": "The Ember Coasts",
+    "position": { "x": 70, "y": 55},
+    "color": "from-amber-500 via-lime-600 to-emerald-700",
+    "description": "A sprawling subcontinent of river deltas, dry forests, and copper ranges. The Liberators operate shipyards and academies here while rural communes barter with Ontwell factors. Coastal towns host public trials of Awakened duels—half festival, half fear.",
+    "keyLocations": ["Ironroot Shipyards", "Vel Mora Academy", "Trident Quay", "Rainscar Forest", "The Copper Steppe"],
+    "population": "~3.8M",
+    "threat": "Ideological Conflict",
+    "connections": ["Askar", "Mistveil", "Rusava"],
+    "imageUrl": "",
+    "visibility": { "freeUsers": true, "signedInUsers": true, "premiumUsers": true },
+    "places": [
+      {
+        "name": "Ironroot Shipyards",
         "type": "facility",
-        "position": {
-          "x": -35,
-          "y": 15
-        },
+        "position": { "x": -22, "y": -8 },
+        "size": "large",
+        "importance": 5,
+        "description": "Liberator drydocks and retrofit slips; rumor says a submersible fitted to brave Mistveil shoals was built here."
+      },
+      {
+        "name": "Vel Mora Academy",
+        "type": "facility",
+        "position": { "x": 24, "y": -2 },
         "size": "medium",
         "importance": 4,
-        "description": "Processes raw materials into industrial chemicals used throughout the manufacturing complex."
+        "description": "School for field operatives and cryptography; recruits memorize fractured circle catechisms."
+      },
+      {
+        "name": "Trident Quay",
+        "type": "city",
+        "position": { "x": -6, "y": 26 },
+        "size": "medium",
+        "importance": 4,
+        "description": "Crowded port where Liberator agents mingle with Ontwell factors and pirate crews."
+      },
+      {
+        "name": "Rainscar Forest",
+        "type": "landmark",
+        "position": { "x": 10, "y": 22 },
+        "size": "medium",
+        "importance": 3,
+        "description": "A monsoon-bitten jungle scored by lightning burns that never quite heal."
+      },
+      {
+        "name": "The Copper Steppe",
+        "type": "landmark",
+        "position": { "x": 32, "y": 16 },
+        "size": "large",
+        "importance": 3,
+        "description": "Wind-flattened grasslands over copper-bearing loam; caravan leagues race the duststorms."
+      }
+    ]
+  },
+  {
+    "name": "Nerethis",
+    "subtitle": "The Green Reach",
+    "position": { "x": 12, "y": 42},
+    "color": "from-teal-500 via-emerald-600 to-lime-500",
+    "description": "A tall, fjord-bitten landmass of rainforests, misty highlands, and glacier-fed rivers. Ranger enclaves protect relic groves while isolated monasteries study moonlit rites. The Guardians keep quiet listening posts along the northern ridge.",
+    "keyLocations": ["Verdant Stair", "Moonwell Monastery", "Fjordline Ports", "Whisperspine", "Greywatch Ridge"],
+    "population": "~2.4M",
+    "threat": "Wild Terrain",
+    "connections": ["Rusava", "Askar"],
+    "imageUrl": "",
+    "visibility": { "freeUsers": true, "signedInUsers": true, "premiumUsers": true },
+    "places": [
+      {
+        "name": "Verdant Stair",
+        "type": "landmark",
+        "position": { "x": -10, "y": -18 },
+        "size": "large",
+        "importance": 4,
+        "description": "A vast terrace of jungle plateaus and cloud gardens stepped toward the sea."
+      },
+      {
+        "name": "Moonwell Monastery",
+        "type": "facility",
+        "position": { "x": 18, "y": -6 },
+        "size": "small",
+        "importance": 5,
+        "description": "Ancient order preserving lunar rites; neutral ground for Awakened pilgrims."
+      },
+      {
+        "name": "Fjordline Ports",
+        "type": "city",
+        "position": { "x": -6, "y": 28 },
+        "size": "medium",
+        "importance": 3,
+        "description": "Chain of harbors tucked into knife-cut inlets; timber and fish caravans depart nightly."
+      },
+      {
+        "name": "Whisperspine",
+        "type": "landmark",
+        "position": { "x": 24, "y": 18 },
+        "size": "small",
+        "importance": 3,
+        "description": "A ridgeline where leaves ‘speak’ in patterned rustles—believed to be lunar resonance."
+      },
+      {
+        "name": "Greywatch Ridge",
+        "type": "outpost",
+        "position": { "x": 32, "y": -2 },
+        "size": "small",
+        "importance": 2,
+        "description": "Discreet Guardian survey station camouflaged among lichened stones."
+      }
+    ]
+  },
+  {
+    "name": "Rusava",
+    "subtitle": "The Broken Crown",
+    "position": { "x": 45, "y": 85},
+    "color": "from-amber-700 via-stone-600 to-zinc-800",
+    "description": "A sprawling southern continent of deserts, badlands, and snow-bitten archipelagos. City-states feud over caravan routes and old empires’ bones. Ontwell Syndicate banks anchor the trade lattice from vaulted undercities.",
+    "keyLocations": ["Cinder Gate", "Sunken Palatine", "Shard Wastes", "Seven-Salt Archipelago", "Ledgerhall (Ontwell)", "Pilgrim’s Causeway"],
+    "population": "~6.1M",
+    "threat": "Bandit Kingdoms",
+    "connections": ["Askar", "Duskar", "Nerethis"],
+    "imageUrl": "",
+    "visibility": { "freeUsers": true, "signedInUsers": true, "premiumUsers": true },
+    "places": [
+      {
+        "name": "Cinder Gate",
+        "type": "city",
+        "position": { "x": -8, "y": -16 },
+        "size": "large",
+        "importance": 5,
+        "description": "Fortified caravan metropolis built into a volcanic saddle; every road pays the Gate."
+      },
+      {
+        "name": "Sunken Palatine",
+        "type": "ruins",
+        "position": { "x": 26, "y": -6 },
+        "size": "medium",
+        "importance": 4,
+        "description": "Collapsed imperial capital half-claimed by dunes; catacombs now house a ledger of debts."
+      },
+      {
+        "name": "Shard Wastes",
+        "type": "landmark",
+        "position": { "x": 8, "y": 20 },
+        "size": "large",
+        "importance": 3,
+        "description": "Plain glittering with broken lunar glass—profitable, lethal, and fiercely contested."
+      },
+      {
+        "name": "Seven-Salt Archipelago",
+        "type": "landmark",
+        "position": { "x": 18, "y": 28 },
+        "size": "medium",
+        "importance": 3,
+        "description": "Chain of briny isles famous for storm pearls and ship-breaker reefs."
+      },
+      {
+        "name": "Ledgerhall (Ontwell)",
+        "type": "facility",
+        "position": { "x": -20, "y": 18 },
+        "size": "medium",
+        "importance": 5,
+        "description": "Marble vault where Ontwell adjudicates black-market contracts and blood-bail bonds."
+      },
+      {
+        "name": "Pilgrim’s Causeway",
+        "type": "route",
+        "position": { "x": -2, "y": 30 },
+        "size": "small",
+        "importance": 2,
+        "description": "Ancient road resurfaced by Awakened stonemasons; guarded by toll-priests in orange veils."
+      }
+    ]
+  },
+  {
+    "name": "The Voidlands",
+    "subtitle": "The Shattered Expanse",
+    "position": { "x": 55, "y": 72},
+    "color": "from-indigo-800 via-violet-700 to-fuchsia-600",
+    "description": "Zones where reality buckles—skies shear, gravity wobbles, and echoes of other places bleed through. Nomad orders track anomalies for salvage while Nightmare hunters cull emergent horrors.",
+    "keyLocations": ["Eventline Rift", "Mirror Salt Flats", "The Unmoored Tower", "Nomad Camp K-3", "Anomaly Orchard"],
+    "population": "~50,000 (estimated)",
+    "threat": "Reality Breakdown",
+    "connections": ["Wasteland Expanse", "Askar", "Rusava"],
+    "imageUrl": "",
+    "visibility": { "freeUsers": true, "signedInUsers": true, "premiumUsers": true },
+    "places": [
+      {
+        "name": "Eventline Rift",
+        "type": "landmark",
+        "position": { "x": -16, "y": -10 },
+        "size": "large",
+        "importance": 5,
+        "description": "A canyon where time ‘skips’ like a stone across water; teams tether themselves to return."
+      },
+      {
+        "name": "Mirror Salt Flats",
+        "type": "landmark",
+        "position": { "x": 20, "y": 6 },
+        "size": "medium",
+        "importance": 3,
+        "description": "Polished panes of mineralized salt reflecting skies that aren’t here."
+      },
+      {
+        "name": "The Unmoored Tower",
+        "type": "ruins",
+        "position": { "x": 8, "y": 22 },
+        "size": "small",
+        "importance": 4,
+        "description": "A spire that appears at shifting coordinates; interior stairs run in impossible loops."
+      },
+      {
+        "name": "Nomad Camp K-3",
+        "type": "outpost",
+        "position": { "x": -8, "y": 28 },
+        "size": "small",
+        "importance": 2,
+        "description": "Caravan enclave of anomaly trackers, glassblowers, and bone-map scriveners."
+      },
+      {
+        "name": "Anomaly Orchard",
+        "type": "landmark",
+        "position": { "x": 28, "y": -6 },
+        "size": "small",
+        "importance": 3,
+        "description": "A grove of metallic trees that ‘fruit’ gravity wells after storms."
       }
     ]
   },
   {
     "name": "Wasteland Expanse",
     "subtitle": "Irradiated Badlands",
-    "position": {
-      "x": 85,
-      "y": 60
-    },
+    "position": { "x": 88, "y": 68},
     "color": "from-yellow-600 via-orange-700 to-red-800",
-    "description": "A vast expanse of irradiated wasteland stretching beyond the horizon, created by decades of industrial pollution and experimental weapons testing. Mutated creatures roam these desolate lands, and strange phenomena occur where reality itself seems unstable. Only the bravest or most desperate venture into these cursed lands.",
-    "keyLocations": [
-      "Radiation Storms",
-      "Mutant Colonies",
-      "Ancient Ruins",
-      "Energy Anomalies",
-      "Crashed Research Station",
-      "The Glass Desert"
-    ],
+    "description": "A vast irradiated plateau of slag fields, crater lakes, and fused glass deserts left by forgotten tests. Mutant clades bargain with Black Suns scavengers; storms run green at the core.",
+    "keyLocations": ["Radiation Storm Belt", "Mutant Colonies", "Ancient Test Range", "Energy Anomalies", "Crashed Research Station", "The Glass Desert"],
     "population": "Unknown",
     "threat": "Extreme Danger",
-    "connections": [],
+    "connections": ["The Voidlands", "Neo-Tokyo Outskirts"],
     "imageUrl": "",
-    "visibility": {
-      "freeUsers": false,
-      "signedInUsers": false,
-      "premiumUsers": true
-    },
+    "visibility": { "freeUsers": false, "signedInUsers": false, "premiumUsers": true },
     "places": [
       {
         "name": "Mutant Colonies",
         "type": "ruins",
-        "position": {
-          "x": -40,
-          "y": -10
-        },
+        "position": { "x": -38, "y": -8 },
         "size": "medium",
         "importance": 3,
-        "description": "Settlements of creatures changed by radiation, living in the ruins of the old world."
+        "description": "Settlements of altered survivors trading scavenged alloys and stormwater."
       },
       {
         "name": "Energy Anomalies",
         "type": "landmark",
-        "position": {
-          "x": 30,
-          "y": 20
-        },
+        "position": { "x": 30, "y": 18 },
         "size": "small",
         "importance": 5,
-        "description": "Strange distortions in space-time where the laws of physics seem to break down."
+        "description": "Space-time eddies where instruments spin and voices arrive before their senders."
+      },
+      {
+        "name": "Crashed Research Station",
+        "type": "ruins",
+        "position": { "x": 8, "y": 28 },
+        "size": "small",
+        "importance": 4,
+        "description": "A downed aerial lab; rumored Ontwell contracts pay for intact cores."
+      },
+      {
+        "name": "The Glass Desert",
+        "type": "landmark",
+        "position": { "x": -6, "y": 24 },
+        "size": "large",
+        "importance": 3,
+        "description": "Miles of fused silica dunes that cut boots and distort horizon lines."
+      }
+    ]
+  },
+  {
+    "name": "Industrial Zone 7",
+    "subtitle": "Manufacturing Complex",
+    "position": { "x": 22, "y": 78},
+    "color": "from-orange-500 via-yellow-500 to-red-600",
+    "description": "An endless grid of automated fabs, chemical towers, and dorm-stacks. Shift whistles mark the city’s only music. Ontwell manifests run through every loading bay.",
+    "keyLocations": ["Factory Prime", "Chemical Processing Plant", "Worker Dormitories", "Transit Spine", "Quality Control Center", "Waste Processing"],
+    "population": "~850K",
+    "threat": "Environmental Hazard",
+    "connections": ["Askar", "Neo-Tokyo Central"],
+    "imageUrl": "",
+    "visibility": { "freeUsers": false, "signedInUsers": true, "premiumUsers": true },
+    "places": [
+      {
+        "name": "Factory Prime",
+        "type": "facility",
+        "position": { "x": 2, "y": -24 },
+        "size": "large",
+        "importance": 5,
+        "description": "Flagship automated line for advanced components; guarded by private security mechs."
+      },
+      {
+        "name": "Chemical Processing Plant",
+        "type": "facility",
+        "position": { "x": -32, "y": 12 },
+        "size": "medium",
+        "importance": 4,
+        "description": "Refines precursor slurries; occasional violet fires leak into the canal."
+      },
+      {
+        "name": "Transit Spine",
+        "type": "route",
+        "position": { "x": 12, "y": 30 },
+        "size": "small",
+        "importance": 3,
+        "description": "Magline that stitches dorm blocks to loading yards in five-minute pulses."
+      }
+    ]
+  },
+  {
+    "name": "Neo-Tokyo Central",
+    "subtitle": "Corporate Megacity",
+    "position": { "x": 50, "y": 44},
+    "color": "from-cyan-400 via-blue-500 to-purple-600",
+    "description": "The Guardian-aligned world capital of steel, glass, and neon. Skyscraper stacks host executive enclaves while underlevels buzz with runners, scrappers, and Rob in Hood’s rumors.",
+    "keyLocations": ["Corporate Plaza", "Data Center Alpha", "Skybridge Network", "Underground Markets", "Executive Towers", "Transit Hub Central"],
+    "population": "12.5M",
+    "threat": "High Security",
+    "connections": ["Neo-Tokyo Outskirts", "Askar", "Oris", "Industrial Zone 7"],
+    "imageUrl": "",
+    "visibility": { "freeUsers": true, "signedInUsers": true, "premiumUsers": true },
+    "places": [
+      {
+        "name": "Corporate Plaza",
+        "type": "landmark",
+        "position": { "x": -18, "y": -28 },
+        "size": "large",
+        "importance": 5,
+        "description": "Decision core of the megacity; beneath it a Guardian signal array routes the planet’s secure traffic."
+      },
+      {
+        "name": "Data Center Alpha",
+        "type": "facility",
+        "position": { "x": 22, "y": -12 },
+        "size": "medium",
+        "importance": 4,
+        "description": "Primary processing nexus handling surveillance, logistics, and civic credit ledgers."
+      },
+      {
+        "name": "Underground Markets",
+        "type": "district",
+        "position": { "x": -8, "y": 34 },
+        "size": "medium",
+        "importance": 3,
+        "description": "Tunnel sprawl where corporate rejects become rare goods; Ontwell buyers haggle in coded hand signs."
+      }
+    ]
+  },
+  {
+    "name": "Neo-Tokyo Outskirts",
+    "subtitle": "Abandoned Districts",
+    "position": { "x": 64, "y": 40},
+    "color": "from-gray-600 via-red-500 to-orange-600",
+    "description": "Crumbling residential sectors evacuated after consolidation. Squatters and resistance cells share power grids patched from billboard lines.",
+    "keyLocations": ["Rebel Hideout", "Scrap Yards", "Old Metro Tunnels", "Forgotten Temples", "Resistance Base", "Black Market Hub"],
+    "population": "2.1M",
+    "threat": "Moderate Risk",
+    "connections": ["Neo-Tokyo Central", "Oris", "Wasteland Expanse"],
+    "imageUrl": "",
+    "visibility": { "freeUsers": true, "signedInUsers": true, "premiumUsers": true },
+    "places": [
+      {
+        "name": "Rebel Hideout",
+        "type": "outpost",
+        "position": { "x": -28, "y": -18 },
+        "size": "small",
+        "importance": 4,
+        "description": "A buried tram depot converted into safehouses and a printing press for coded broadsheets."
+      },
+      {
+        "name": "Resistance Base",
+        "type": "facility",
+        "position": { "x": 18, "y": 22 },
+        "size": "medium",
+        "importance": 5,
+        "description": "Operations center for cells targeting corporate relays—half clinic, half armory."
       }
     ]
   }
