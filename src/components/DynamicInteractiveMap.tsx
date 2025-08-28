@@ -432,20 +432,55 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({ regions }) => {
                     </div>
                   )}
 
-                  {/* Places on selection */}
-                  {selectedRegion === r.id && r.places?.map((p) => (
-                    <div
-                      key={p.id}
-                      className="absolute"
-                      style={{ left: `${p.position.x}px`, top: `${p.position.y}px`, transform: 'translate(-50%, -50%)' }}
-                      onMouseEnter={() => setHoveredLocation(p.id)}
-                      onMouseLeave={() => setHoveredLocation(null)}
-                    >
-                      <div className="w-8 h-8 rounded-lg border-2 bg-white/5 border-white/20 flex items-center justify-center">
-                        {getPlaceIcon(p.type)}
-                      </div>
-                    </div>
-                  ))}
+                  {/* Places as circular nodes around the main node, with connecting lines */}
+                  {selectedRegion === r.id && r.places?.length > 0 && (
+                    <>
+                      {/* SVG lines from main node to each place */}
+                      <svg className="absolute left-1/2 top-1/2" style={{ pointerEvents: 'none', width: '180px', height: '180px', transform: 'translate(-50%, -50%)' }}>
+                        {(r.places ?? []).map((p, i) => {
+                          const radius = 80; // px from center
+                          const angle = (2 * Math.PI * i) / (r.places ?? []).length;
+                          const x = 90 + radius * Math.cos(angle);
+                          const y = 90 + radius * Math.sin(angle);
+                          return (
+                            <line
+                              key={p.id}
+                              x1={90}
+                              y1={90}
+                              x2={x}
+                              y2={y}
+                              stroke="#38bdf8"
+                              strokeWidth={2}
+                              opacity={0.7}
+                            />
+                          );
+                        })}
+                      </svg>
+                      {/* Place nodes */}
+                      {(r.places ?? []).map((p, i) => {
+                        const radius = 80; // px from center
+                        const angle = (2 * Math.PI * i) / (r.places ?? []).length;
+                        const x = radius * Math.cos(angle);
+                        const y = radius * Math.sin(angle);
+                        return (
+                          <div
+                            key={p.id}
+                            className="absolute"
+                            style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)`, transform: 'translate(-50%, -50%)' }}
+                            onMouseEnter={() => setHoveredLocation(p.id)}
+                            onMouseLeave={() => setHoveredLocation(null)}
+                          >
+                            <div className="w-10 h-10 rounded-full border-2 bg-white/10 border-cyan-400 flex items-center justify-center shadow-lg">
+                              {getPlaceIcon(p.type)}
+                            </div>
+                            <div className="mt-1 text-xs text-white text-center font-semibold max-w-[80px] truncate">
+                              {p.name}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </>
+                  )}
                 </div>
               ))}
             </div>
