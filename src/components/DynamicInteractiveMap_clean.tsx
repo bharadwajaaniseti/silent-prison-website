@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X, ZoomIn, ZoomOut, RotateCcw, Target, Network } from 'lucide-react';
 
 interface Region {
-  id: string;
   name: string;
   position: { x: number; y: number };
   color: string;
@@ -10,7 +9,7 @@ interface Region {
   threat: string;
   description: string;
   keyLocations: string[];
-  connections?: string[];
+  connections: string[];
 }
 
 interface MapNode {
@@ -21,31 +20,37 @@ interface MapNode {
   data: Region;
 }
 
+interface Connection {
+  from: string;
+  to: string;
+  distance: number;
+}
+
 interface SelectedNodeData {
   node: MapNode;
   data: Region;
 }
 
 interface DynamicInteractiveMapProps {
-  regions: Region[];
-  onRegionClick?: (region: Region) => void;
+  nodes: Region[];
+  connections: Connection[];
 }
 
-const DynamicInteractiveMap: React.FC<DynamicInteractiveMapProps> = ({ regions = [], onRegionClick }) => {
+const DynamicInteractiveMap: React.FC<DynamicInteractiveMapProps> = ({ nodes, connections }) => {
   const [mapNodes, setMapNodes] = useState<MapNode[]>([]);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<'region' | null>(null);
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
   
   const mapRef = useRef<HTMLDivElement>(null);
 
   // Initialize map nodes from regions
   useEffect(() => {
-    console.log('Regions received:', regions);
-    const regionNodes: MapNode[] = regions.map((region: Region) => ({
+    const regionNodes: MapNode[] = nodes.map(region => ({
       id: `region:${region.name}`,
       name: region.name,
       type: 'region' as const,
@@ -54,15 +59,15 @@ const DynamicInteractiveMap: React.FC<DynamicInteractiveMapProps> = ({ regions =
     }));
     
     setMapNodes(regionNodes);
-  }, [regions]);
+  }, [nodes]);
 
   const onNodeClick = useCallback((nodeId: string) => {
     const node = mapNodes.find(n => n.id === nodeId);
-    if (node && onRegionClick) {
+    if (node) {
       setSelectedNode(nodeId);
-      onRegionClick(node.data);
+      setSelectedType('region');
     }
-  }, [mapNodes, onRegionClick]);
+  }, [mapNodes]);
 
   // Mouse event handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -95,21 +100,8 @@ const DynamicInteractiveMap: React.FC<DynamicInteractiveMapProps> = ({ regions =
     : null;
 
   const DynamicInteractiveMapComponent = () => {
-    // Show loading/empty state if no regions
-    if (!regions || regions.length === 0) {
-      return (
-        <div className="relative w-full h-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden flex items-center justify-center">
-          <div className="text-center">
-            <Network className="w-16 h-16 text-cyan-400 mx-auto mb-4 animate-pulse" />
-            <h3 className="text-xl font-bold text-white mb-2">No Regions Available</h3>
-            <p className="text-white/70">Waiting for region data to load...</p>
-            <div className="mt-4 text-sm text-white/50">
-              Regions: {regions?.length || 0}
-            </div>
-          </div>
-        </div>
-      );
-    }
+    const canvasWidth = 800;
+    const canvasHeight = 600;
 
     return (
       <div className="relative w-full h-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
@@ -133,7 +125,8 @@ const DynamicInteractiveMap: React.FC<DynamicInteractiveMapProps> = ({ regions =
                 setZoom(1);
                 setPan({ x: 0, y: 0 });
                 setSelectedNode(null);
-                setMapNodes(regions.map((r: Region) => ({
+                setSelectedType(null);
+                setMapNodes(nodes.map(r => ({
                   id: `region:${r.name}`,
                   name: r.name,
                   type: 'region' as const,
@@ -201,7 +194,7 @@ const DynamicInteractiveMap: React.FC<DynamicInteractiveMapProps> = ({ regions =
               );
             })}
 
-            {/* Connections - Generate from region connections */}
+            {/* Connections */}
             <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: -1 }}>
               <defs>
                 <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -210,34 +203,29 @@ const DynamicInteractiveMap: React.FC<DynamicInteractiveMapProps> = ({ regions =
                 </linearGradient>
               </defs>
               
-              {regions.flatMap((region) => 
-                (region.connections || []).map((connectionId: string, index: number) => {
-                  const toRegion = regions.find(r => r.id === connectionId);
-                  if (!toRegion) return null;
-                  
-                  const fromNode = mapNodes.find(n => n.data.name === region.name);
-                  const toNode = mapNodes.find(n => n.data.name === toRegion.name);
-                  
-                  if (!fromNode || !toNode) return null;
-                  
-                  const active = selectedNode === fromNode.id || selectedNode === toNode.id;
-                  
-                  return (
-                    <line
-                      key={`${region.id}-${connectionId}-${index}`}
-                      x1={`${fromNode.position.x}%`}
-                      y1={`${fromNode.position.y}%`}
-                      x2={`${toNode.position.x}%`}
-                      y2={`${toNode.position.y}%`}
-                      stroke="url(#connectionGradient)"
-                      strokeWidth={active ? 3 : 1.5}
-                      opacity={active ? 1 : 0.6}
-                      strokeDasharray="5,5"
-                      className="connection-line"
-                    />
-                  );
-                })
-              ).filter(Boolean)}
+              {connections.map((connection, index) => {
+                const fromNode = mapNodes.find(n => n.name === connection.from);
+                const toNode = mapNodes.find(n => n.name === connection.to);
+                
+                if (!fromNode || !toNode) return null;
+                
+                const active = selectedNode === fromNode.id || selectedNode === toNode.id;
+                
+                return (
+                  <line
+                    key={`${connection.from}-${connection.to}-${index}`}
+                    x1={`${fromNode.position.x}%`}
+                    y1={`${fromNode.position.y}%`}
+                    x2={`${toNode.position.x}%`}
+                    y2={`${toNode.position.y}%`}
+                    stroke="url(#connectionGradient)"
+                    strokeWidth={active ? 3 : 1.5}
+                    opacity={active ? 1 : 0.6}
+                    strokeDasharray="5,5"
+                    className="connection-line"
+                  />
+                );
+              })}
             </svg>
           </div>
         </div>
@@ -256,6 +244,7 @@ const DynamicInteractiveMap: React.FC<DynamicInteractiveMapProps> = ({ regions =
                   <button 
                     onClick={() => {
                       setSelectedNode(null);
+                      setSelectedType(null);
                     }} 
                     className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all"
                   >
@@ -301,11 +290,11 @@ const DynamicInteractiveMap: React.FC<DynamicInteractiveMapProps> = ({ regions =
           <div className="flex items-center space-x-6 text-xs font-mono text-zinc-400">
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span>Regions: {regions.length}</span>
+              <span>Regions: {nodes.length}</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 rounded-full bg-blue-400" />
-              <span>Connections: {regions.reduce((acc, r) => acc + (r.connections?.length || 0), 0)}</span>
+              <span>Connections: {connections.length}</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 rounded-full bg-cyan-400" />
