@@ -1,0 +1,102 @@
+[
+  {
+    "name": "Neo-Tokyo Central",
+    "subtitle": "Corporate Megacity",
+    "position": {
+      "x": 30,
+      "y": 40
+    },
+    "color": "from-cyan-400 via-blue-500 to-purple-600",
+    "description": "The heart of the corporate empire, where towering skyscrapers pierce the smog-filled sky and neon lights never sleep.",
+    "keyLocations": [
+      "Corporate Plaza",
+      "Data Center Alpha",
+      "Skybridge Network",
+      "Underground Markets"
+    ],
+    "population": "12.5M",
+    "threat": "High Security",
+    "connections": [],
+    "imageUrl": "",
+    "visibility": {
+      "freeUsers": true,
+      "signedInUsers": true,
+      "premiumUsers": true
+    }
+  },
+  {
+    "name": "Neo-Tokyo Outskirts",
+    "subtitle": "Abandoned Districts",
+    "position": {
+      "x": 65,
+      "y": 25
+    },
+    "color": "from-gray-600 via-red-500 to-orange-600",
+    "description": "Once thriving residential areas, now abandoned and left to decay after the corporate consolidation.",
+    "keyLocations": [
+      "Rebel Hideout",
+      "Scrap Yards",
+      "Old Metro Tunnels",
+      "Forgotten Temples"
+    ],
+    "population": "2.1M",
+    "threat": "Moderate Risk",
+    "connections": [],
+    "imageUrl": "",
+    "visibility": {
+      "freeUsers": true,
+      "signedInUsers": true,
+      "premiumUsers": true
+    }
+  },
+  {
+    "name": "Industrial Zone 7",
+    "subtitle": "Manufacturing Complex",
+    "position": {
+      "x": 15,
+      "y": 70
+    },
+    "color": "from-orange-500 via-yellow-500 to-red-600",
+    "description": "A massive industrial complex where automated factories work around the clock.",
+    "keyLocations": [
+      "Factory Prime",
+      "Chemical Processing Plant",
+      "Worker Dormitories",
+      "Transport Hub"
+    ],
+    "population": "850K",
+    "threat": "Environmental Hazard",
+    "connections": [],
+    "imageUrl": "",
+    "visibility": {
+      "freeUsers": false,
+      "signedInUsers": true,
+      "premiumUsers": true
+    }
+  },
+  {
+    "name": "Wasteland Expanse",
+    "subtitle": "Irradiated Badlands",
+    "position": {
+      "x": 85,
+      "y": 60
+    },
+    "color": "from-yellow-600 via-orange-700 to-red-800",
+    "description": "A vast expanse of irradiated wasteland stretching beyond the horizon.",
+    "keyLocations": [
+      "Radiation Storms",
+      "Mutant Colonies",
+      "Ancient Ruins",
+      "Energy Anomalies"
+    ],
+    "population": "Unknown",
+    "threat": "Extreme Danger",
+    "connections": [],
+    "imageUrl": "",
+    "visibility": {
+      "freeUsers": false,
+      "signedInUsers": false,
+      "premiumUsers": true
+    }
+  }
+]

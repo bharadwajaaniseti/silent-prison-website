@@ -1,0 +1,358 @@
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "name": "Neo-Tokyo Central",
+    "subtitle": "Corporate Megacity",
+    "position": {
+      "x": 30,
+      "y": 40
+    },
+    "color": "from-cyan-400 via-blue-500 to-purple-600",
+    "description": "The heart of the corporate empire, where towering skyscrapers pierce the smog-filled sky and neon lights never sleep. This sprawling metropolis serves as the command center for the world's most powerful corporations, housing millions of workers in vertical cities that stretch toward the heavens.",
+    "keyLocations": [
+      "Corporate Plaza",
+      "Data Center Alpha",
+      "Skybridge Network",
+      "Underground Markets",
+      "Executive Towers",
+      "Transport Hub Central"
+    ],
+    "population": "12.5M",
+    "threat": "High Security",
+    "connections": [
+      "550e8400-e29b-41d4-a716-446655440002",
+      "550e8400-e29b-41d4-a716-446655440003"
+    ],
+    "imageUrl": "https://example.com/images/neo-tokyo-central.jpg",
+    "visibility": {
+      "freeUsers": true,
+      "signedInUsers": true,
+      "premiumUsers": true
+    },
+    "places": [
+      {
+        "id": "650e8400-e29b-41d4-a716-446655440001",
+        "name": "Corporate Plaza",
+        "type": "landmark",
+        "position": {
+          "x": -20,
+          "y": -30
+        },
+        "size": "large",
+        "importance": 5,
+        "description": "The central hub where all major corporate decisions are made. A massive complex of interconnected buildings reaching into the clouds.",
+        "connections": ["650e8400-e29b-41d4-a716-446655440002"]
+      },
+      {
+        "id": "650e8400-e29b-41d4-a716-446655440002",
+        "name": "Data Center Alpha",
+        "type": "facility",
+        "position": {
+          "x": 25,
+          "y": -15
+        },
+        "size": "medium",
+        "importance": 4,
+        "description": "The primary data processing center that handles all corporate communications and surveillance data.",
+        "connections": ["650e8400-e29b-41d4-a716-446655440001", "650e8400-e29b-41d4-a716-446655440003"]
+      },
+      {
+        "id": "650e8400-e29b-41d4-a716-446655440003",
+        "name": "Underground Markets",
+        "type": "city",
+        "position": {
+          "x": -10,
+          "y": 35
+        },
+        "size": "medium",
+        "importance": 3,
+        "description": "Hidden beneath the corporate towers, these markets trade in everything the corporations don't want you to have."
+      }
+    ]
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440002",
+    "name": "Neo-Tokyo Outskirts",
+    "subtitle": "Abandoned Districts",
+    "position": {
+      "x": 65,
+      "y": 25
+    },
+    "color": "from-gray-600 via-red-500 to-orange-600",
+    "description": "Once thriving residential areas, now abandoned and left to decay after the corporate consolidation. These districts have become havens for rebels, outcasts, and those who refuse to bow to corporate rule. The streets are filled with makeshift shelters and underground networks.",
+    "keyLocations": [
+      "Rebel Hideout",
+      "Scrap Yards",
+      "Old Metro Tunnels",
+      "Forgotten Temples",
+      "Resistance Base",
+      "Black Market Hub"
+    ],
+    "population": "2.1M",
+    "threat": "Moderate Risk",
+    "connections": [
+      "550e8400-e29b-41d4-a716-446655440001",
+      "550e8400-e29b-41d4-a716-446655440004"
+    ],
+    "imageUrl": "https://example.com/images/neo-tokyo-outskirts.jpg",
+    "visibility": {
+      "freeUsers": true,
+      "signedInUsers": true,
+      "premiumUsers": true
+    },
+    "places": [
+      {
+        "id": "650e8400-e29b-41d4-a716-446655440004",
+        "name": "Rebel Hideout",
+        "type": "outpost",
+        "position": {
+          "x": -30,
+          "y": -20
+        },
+        "size": "small",
+        "importance": 4,
+        "description": "A secret base where the resistance plans their operations against corporate control.",
+        "connections": ["650e8400-e29b-41d4-a716-446655440005"]
+      },
+      {
+        "id": "650e8400-e29b-41d4-a716-446655440005",
+        "name": "Resistance Base",
+        "type": "facility",
+        "position": {
+          "x": 20,
+          "y": 25
+        },
+        "size": "medium",
+        "importance": 5,
+        "description": "The main headquarters of the anti-corporate resistance movement."
+      }
+    ]
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440003",
+    "name": "Industrial Zone 7",
+    "subtitle": "Manufacturing Complex",
+    "position": {
+      "x": 15,
+      "y": 70
+    },
+    "color": "from-orange-500 via-yellow-500 to-red-600",
+    "description": "A massive industrial complex where automated factories work around the clock to produce goods for the corporate empire. The air is thick with chemical fumes and the constant hum of machinery echoes through the metal corridors. Workers live in cramped dormitories adjacent to the production lines.",
+    "keyLocations": [
+      "Factory Prime",
+      "Chemical Processing Plant",
+      "Worker Dormitories",
+      "Transport Hub",
+      "Quality Control Center",
+      "Waste Processing"
+    ],
+    "population": "850K",
+    "threat": "Environmental Hazard",
+    "connections": [
+      "550e8400-e29b-41d4-a716-446655440001",
+      "550e8400-e29b-41d4-a716-446655440005"
+    ],
+    "imageUrl": "https://example.com/images/industrial-zone-7.jpg",
+    "visibility": {
+      "freeUsers": false,
+      "signedInUsers": true,
+      "premiumUsers": true
+    },
+    "places": [
+      {
+        "id": "650e8400-e29b-41d4-a716-446655440006",
+        "name": "Factory Prime",
+        "type": "facility",
+        "position": {
+          "x": 0,
+          "y": -25
+        },
+        "size": "large",
+        "importance": 5,
+        "description": "The largest automated manufacturing facility in the zone, producing advanced technology components.",
+        "connections": ["650e8400-e29b-41d4-a716-446655440007"]
+      },
+      {
+        "id": "650e8400-e29b-41d4-a716-446655440007",
+        "name": "Chemical Processing Plant",
+        "type": "facility",
+        "position": {
+          "x": -35,
+          "y": 15
+        },
+        "size": "medium",
+        "importance": 4,
+        "description": "Processes raw materials into industrial chemicals used throughout the manufacturing complex."
+      }
+    ]
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440004",
+    "name": "Wasteland Expanse",
+    "subtitle": "Irradiated Badlands",
+    "position": {
+      "x": 85,
+      "y": 60
+    },
+    "color": "from-yellow-600 via-orange-700 to-red-800",
+    "description": "A vast expanse of irradiated wasteland stretching beyond the horizon, created by decades of industrial pollution and experimental weapons testing. Mutated creatures roam these desolate lands, and strange phenomena occur where reality itself seems unstable. Only the bravest or most desperate venture into these cursed lands.",
+    "keyLocations": [
+      "Radiation Storms",
+      "Mutant Colonies",
+      "Ancient Ruins",
+      "Energy Anomalies",
+      "Crashed Research Station",
+      "The Glass Desert"
+    ],
+    "population": "Unknown",
+    "threat": "Extreme Danger",
+    "connections": [
+      "550e8400-e29b-41d4-a716-446655440002",
+      "550e8400-e29b-41d4-a716-446655440006"
+    ],
+    "imageUrl": "https://example.com/images/wasteland-expanse.jpg",
+    "visibility": {
+      "freeUsers": false,
+      "signedInUsers": false,
+      "premiumUsers": true
+    },
+    "places": [
+      {
+        "id": "650e8400-e29b-41d4-a716-446655440008",
+        "name": "Mutant Colonies",
+        "type": "ruins",
+        "position": {
+          "x": -40,
+          "y": -10
+        },
+        "size": "medium",
+        "importance": 3,
+        "description": "Settlements of creatures changed by radiation, living in the ruins of the old world."
+      },
+      {
+        "id": "650e8400-e29b-41d4-a716-446655440009",
+        "name": "Energy Anomalies",
+        "type": "landmark",
+        "position": {
+          "x": 30,
+          "y": 20
+        },
+        "size": "small",
+        "importance": 5,
+        "description": "Strange distortions in space-time where the laws of physics seem to break down."
+      }
+    ]
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440005",
+    "name": "Mining Station Beta",
+    "subtitle": "Deep Core Extraction",
+    "position": {
+      "x": 25,
+      "y": 85
+    },
+    "color": "from-stone-600 via-gray-700 to-slate-800",
+    "description": "A heavily fortified mining operation that extracts rare minerals from deep within the earth. The station operates in continuous shifts, with workers descending into dangerous tunnels that seem to go on forever. Strange discoveries have been made in the deepest levels, leading to increased security and secrecy.",
+    "keyLocations": [
+      "Deep Shafts",
+      "Processing Center",
+      "Security Barracks",
+      "Equipment Storage",
+      "Geological Survey Lab",
+      "Emergency Bunkers"
+    ],
+    "population": "15K",
+    "threat": "Secure Facility",
+    "connections": [
+      "550e8400-e29b-41d4-a716-446655440003"
+    ],
+    "imageUrl": "https://example.com/images/mining-station-beta.jpg",
+    "visibility": {
+      "freeUsers": false,
+      "signedInUsers": true,
+      "premiumUsers": true
+    },
+    "places": [
+      {
+        "id": "650e8400-e29b-41d4-a716-446655440010",
+        "name": "Deep Shafts",
+        "type": "facility",
+        "position": {
+          "x": -15,
+          "y": -30
+        },
+        "size": "large",
+        "importance": 5,
+        "description": "Massive elevator systems that descend kilometers into the earth's crust."
+      },
+      {
+        "id": "650e8400-e29b-41d4-a716-446655440011",
+        "name": "Processing Center",
+        "type": "facility",
+        "position": {
+          "x": 25,
+          "y": 10
+        },
+        "size": "medium",
+        "importance": 4,
+        "description": "Where extracted materials are refined and prepared for transport."
+      }
+    ]
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440006",
+    "name": "Frontier Settlement",
+    "subtitle": "Last Outpost",
+    "position": {
+      "x": 90,
+      "y": 80
+    },
+    "color": "from-green-600 via-teal-500 to-blue-600",
+    "description": "The last bastion of civilization at the edge of the known world. This hardy settlement serves as a trading post for explorers, researchers, and anyone brave enough to venture into the unknown territories. Despite its remote location, it maintains communication with the outside world and serves as a beacon of hope.",
+    "keyLocations": [
+      "Trading Post",
+      "Research Station",
+      "Defensive Walls",
+      "Communication Array",
+      "Medical Bay",
+      "Supply Depot"
+    ],
+    "population": "5.2K",
+    "threat": "Frontier Dangers",
+    "connections": [
+      "550e8400-e29b-41d4-a716-446655440004"
+    ],
+    "imageUrl": "https://example.com/images/frontier-settlement.jpg",
+    "visibility": {
+      "freeUsers": true,
+      "signedInUsers": true,
+      "premiumUsers": true
+    },
+    "places": [
+      {
+        "id": "650e8400-e29b-41d4-a716-446655440012",
+        "name": "Trading Post",
+        "type": "town",
+        "position": {
+          "x": -20,
+          "y": -15
+        },
+        "size": "medium",
+        "importance": 4,
+        "description": "The economic heart of the settlement where goods from across the wasteland are traded."
+      },
+      {
+        "id": "650e8400-e29b-41d4-a716-446655440013",
+        "name": "Research Station",
+        "type": "facility",
+        "position": {
+          "x": 15,
+          "y": 25
+        },
+        "size": "small",
+        "importance": 3,
+        "description": "A small but well-equipped facility studying the anomalies of the wasteland."
+      }
+    ]
+  }
+]

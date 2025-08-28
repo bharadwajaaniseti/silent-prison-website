@@ -29,6 +29,11 @@ export interface Region {
   places?: Place[];
   connections?: string[];               // region ids
   imageUrl?: string; // region icon/image
+  visibility?: {
+    freeUsers: boolean;
+    signedInUsers: boolean;
+    premiumUsers: boolean;
+  };
 }
 export interface Place {
   id: string;
