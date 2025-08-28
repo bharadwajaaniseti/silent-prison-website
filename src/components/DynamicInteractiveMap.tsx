@@ -251,23 +251,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({ regions }) => {
                 <p className="text-xs text-white/60 font-mono">Global Network Monitor</p>
               </div>
             </div>
-          </div>
-
-          <div className="hidden md:flex bg-white/5 rounded-xl border border-white/10 p-1">
-            {(['global', 'regional', 'local'] as const).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize ${
-                  viewMode === mode
-                    ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-400/30'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
+          </div>          
         </div>
       </header>
 
